@@ -24,48 +24,64 @@ export default function LoginPage() {
   };
 
   return (
-    <div style={{ width: '100%', display: 'flex', justifyContent: 'center', height: '100vh', alignItems: 'center' }}>
-      <div style={{ width: '30%', height: '80%', backgroundColor: '#002733', borderRadius: '20px 0 0 20px', display: 'grid', placeContent: 'center' }}>
-        <div>
-          <h1 style={{fontSize:'35px'}}>Inicio de sesión</h1>
-          <img src="src/assets/imagenes/Logo.png" width={120} height={110} alt="Logo del sistema LIGAMER" />
-        </div>
+    <div className="container-fluid d-flex align-items-center justify-content-center" style={{ minHeight: '100vh' }}>
+      <div className="row w-100 justify-content-center">
+        {/* Left: formulario (siempre visible) */}
+        <div className="col-11 col-sm-10 col-md-8 col-lg-6">
+          <div className="d-flex flex-column flex-md-row shadow" style={{ minHeight: '60vh', borderRadius: 20, overflow: 'hidden' }}>
+            <div className="p-4" style={{ backgroundColor: '#002733', color: 'white', flex: 1, display: 'grid', alignContent: 'center' }}>
+              <div style={{ maxWidth: 520, margin: '0 auto' }}>
+                <div className="text-center mb-3">
+                  <h1 style={{ fontSize: '2rem', marginBottom: 8 }}>Inicio de sesión</h1>
+                  <img src="src/assets/imagenes/Logo.png" width={100} height={90} alt="Logo del sistema LIGAMER" />
+                </div>
 
-        <form onSubmit={handleSubmit} style={{ marginTop: '20px' }}>
-          <div style={{ color: 'white', marginBottom: '1rem', display: 'grid', placeItems:'start' }}>
-            <label>Nombre de usuario:</label>
-            <input
-              type="text"
-              placeholder="Introduce tu nombre de usuario"
-              style={{ padding: '0.5rem', borderRadius: '5px', border: '1px solid #ccc', width: '100%', backgroundColor: 'white', color: 'black' }}
-              value={username} onChange={e => setUsername(e.target.value)}
-            />
-          </div>
-          <div style={{ color: 'white', marginBottom: '1rem', display: 'grid', placeItems:'start' }}>
-            <label>Contraseña:</label>
-            <input
-              type="password"
-              placeholder="Introduce tu contraseña"
-              style={{ padding: '0.5rem', borderRadius: '5px', border: '1px solid #ccc', width: '100%', backgroundColor: 'white', color: 'black' }}
-              value={password} onChange={e => setPassword(e.target.value)}
-            />
-            <a href="">¿Olvidaste tu contraseña?</a>
-          </div>
-          {error && <div style={{ color: 'red', marginBottom: '1rem' }}>{error}</div>}
-          <div style={{ color: 'white', marginBottom: '1rem', marginTop: '30px' }}>
-            <button style={{ padding: '0.5rem', borderRadius: '5px', width: '50%', backgroundColor: '#4A3287' }}>
-              Iniciar sesión
-            </button>
-            <br /><br />
-            <div style={{ display: 'flex', justifyContent: 'center'}}>
-              <p>¿Aun no tienes cuenta?</p> <a href="">Crear cuenta</a>
+                <form onSubmit={handleSubmit}>
+                  <div className="mb-3 text-start">
+                    <label className="form-label">Nombre de usuario:</label>
+                    <input
+                      type="text"
+                      placeholder="Introduce tu nombre de usuario"
+                      className="form-control"
+                      value={username}
+                      onChange={e => setUsername(e.target.value)}
+                    />
+                  </div>
+
+                  <div className="mb-3 text-start">
+                    <label className="form-label">Contraseña:</label>
+                    <input
+                      type="password"
+                      placeholder="Introduce tu contraseña"
+                      className="form-control"
+                      value={password}
+                      onChange={e => setPassword(e.target.value)}
+                    />
+                    <div className="mt-2"><a className="text-light" href="#">¿Olvidaste tu contraseña?</a></div>
+                  </div>
+
+                  {error && <div className="text-danger mb-2">{error}</div>}
+
+                  <div className="d-grid gap-2 mb-3">
+                    <button type="submit" className="btn" style={{ backgroundColor: '#4A3287', color: 'white' }}>
+                      Iniciar sesión
+                    </button>
+                  </div>
+
+                  <div className="d-flex justify-content-center text-center text-light">
+                    <p className="mb-0 me-2">¿Aun no tienes cuenta?</p>
+                    <a className="text-light" href="#">Crear cuenta</a>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            {/* Right: imagen decorativa, oculta en pantallas pequeñas */}
+            <div className="d-none d-md-flex align-items-center justify-content-center" style={{ backgroundColor: '#00A6A6', width: 220 }}>
+              <img src="src/assets/imagenes/Control.png" alt="Decoración" style={{ maxWidth: '100%', height: 'auto' }} />
             </div>
           </div>
-        </form>
-      </div>
-
-      <div style={{ width: '15%', height: '80%', backgroundColor: '#00A6A6', borderRadius: '0px 20px 20px 0px', display:'grid', placeContent:'center' }}>
-        <img src="src/assets/imagenes/Control.png" width={120} height={80} alt="Logo del sistema LIGAMER" />
+        </div>
       </div>
     </div>
   );

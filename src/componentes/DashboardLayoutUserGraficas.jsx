@@ -15,21 +15,24 @@ export default function DashboardLayoutUserGraficas({ title, children }) {
   ];
   return (
     <div className="dashboard-layout">
-      <div className="sideBar" style={{width:'15%', height:'100vh',backgroundColor:'#00A6A6'}}>
-        <Sidebar menuItems={menuItems} />
-      </div>
+      <Sidebar menuItems={menuItems} />
 
-      <div className="dashboard-container">
-      <h1>Información del equipo</h1>
-      <div className="charts-row">
-        <PieChartGamers />
-        <RadarChartGamers />
-        
+      <div className="mainContent">
+        <div className="dashboard-container container-fluid">
+          <h1>Información del equipo</h1>
+          <div className="charts-row">
+            <div className="chart-box col-12 col-md-6">
+              <PieChartGamers />
+            </div>
+            <div className="chart-box col-12 col-md-6">
+              <RadarChartGamers />
+            </div>
+          </div>
+          <div className="charts-full">
+            <LineChartGamers />
+          </div>
+        </div>
       </div>
-      <div className="charts-full">
-        <LineChartGamers />
-      </div>
-    </div>  
     </div>
   );
 }

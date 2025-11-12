@@ -14,25 +14,23 @@ export default function DashboardLayoutUser({ title, children }) {
   const encabezados = ["Imagen", "Lider", "Estado",  "Acciones"];
   const datos = [
     { id: 1, imagen: "https://i.pravatar.cc/80?img=1", nombre: "Juan", correo: "juan@x.com", estado: "En torneo" },
-    
-    
-
   ];
   const acciones = [
     { accion: "Ver" },
-    // Puedes agregar más acciones aquí en el futuro
   ];
   return (
     <div className="dashboard-layout">
-      <div className="sideBar" style={{width:'15%', height:'100vh',backgroundColor:'#00A6A6'}}>
-        <Sidebar menuItems={menuItems} />
-      </div>
-      <div className="mainContent" style={{width:'85%', height:'100vh'}}>
-        <TablaCard
-                  encabezados={encabezados}
-                  datos={datos}
-                  acciones={acciones}
-                />
+      <Sidebar menuItems={menuItems} />
+      <div className="mainContent container-fluid">
+        <div className="row">
+          <div className="col-12">
+            <TablaCard
+              encabezados={encabezados}
+              datos={datos}
+              acciones={acciones}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );
