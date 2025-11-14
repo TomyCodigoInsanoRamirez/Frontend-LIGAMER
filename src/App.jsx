@@ -27,9 +27,23 @@ function ProtectedRoute({ children }) {
 
 function RoleRoute({ allowedRoles, children }) {
   const { user } = useAuth();
-  console.log('User role:', user?.role);
+  // Mapear roles del backend (ROLE_JUGADOR, ROLE_ORGANIZADOR, ROLE_ADMINISTRADOR)
+  // a los roles usados en el frontend ('user', 'manager', 'admin').
+  const roleMap = {
+    'ROLE_JUGADOR': 'user',
+    'ROLE_ORGANIZADOR': 'manager',
+    'ROLE_ADMINISTRADOR': 'admin'
+  };
+
+  const backendRole = user?.role;
+  const mappedRole = backendRole ? (roleMap[backendRole] || backendRole) : null;
+  console.log('User role:', backendRole, '-> mapped:', mappedRole);
+
   if (!user) return <Navigate to="/login" replace />;
-  if (!allowedRoles.includes(user.role)) return <Navigate to="/forbidden" replace />;
+  // Permitir si allowedRoles contiene el rol mapeado o el rol original (por compatibilidad)
+  if (!mappedRole || (!allowedRoles.includes(mappedRole) && !allowedRoles.includes(backendRole))) {
+    return <Navigate to="/forbidden" replace />;
+  }
   return children;
 }
 
