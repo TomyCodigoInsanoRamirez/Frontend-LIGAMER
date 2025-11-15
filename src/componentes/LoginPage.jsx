@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
@@ -11,14 +11,34 @@ export default function LoginPage() {
   const location = useLocation();
   const from = location.state?.from?.pathname || null;
 
+  const { user } = useAuth();
+
+  useEffect(() => {
+    // Si el usuario ya está autenticado y llega a /login (por ejemplo con el botón "atrás"),
+    // redirigirlo automáticamente a su inicio según el rol.
+    if (!user) return;
+    const roleMap = {
+      'ROLE_JUGADOR': '/user',
+      'ROLE_ORGANIZADOR': '/manager',
+      'ROLE_ADMINISTRADOR': '/admin'
+    };
+    const dest = roleMap[user.role] || '/';
+    // Reemplazamos la entrada actual del historial para que "atrás" no vuelva a /login inmediatamente.
+    navigate(dest, { replace: true });
+  }, [user, navigate]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
     try {
       const u = await login(username, password);
-      if (from) return navigate(from, { replace: true });
-      if (u.role === 'admin') navigate('/admin');
-      else if (u.role === 'manager') navigate('/manager');
+      // Si veníamos de una ruta protegida, volver ahí, si no, navegar según rol
+      if (from) {
+        navigate(from, { replace: true });
+        return;
+      }
+      if (u.role === 'ROLE_ADMINISTRADOR' || u.role === 'admin') navigate('/admin');
+      else if (u.role === 'ROLE_ORGANIZADOR' || u.role === 'manager') navigate('/manager');
       else navigate('/user');
     } catch (err) { setError(err.message); }
   };
