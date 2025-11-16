@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function LoginPage() {
@@ -90,7 +90,7 @@ export default function LoginPage() {
 
                   <div className="d-flex justify-content-center text-center text-light">
                     <p className="mb-0 me-2">¿Aun no tienes cuenta?</p>
-                    <a className="text-light" href="#">Crear cuenta</a>
+                    <Link className="text-light" to="/register">Crear cuenta</Link>
                   </div>
                 </form>
               </div>

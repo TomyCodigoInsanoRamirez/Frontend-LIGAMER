@@ -8,6 +8,7 @@ import UserDashboard from './pages/UserDashboard';
 import DashboardLayoutUserGraficas from './componentes/DashboardLayoutUserGraficas';
 import Forbidden from './pages/Forbidden';
 import HomeRedirect from './pages/HomeRedirect';
+import CrearCuenta from './componentes/CrearCuenta';
 import CrearTorneo from './componentes/crearTorneo';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import TorneoEnCurso from './pages/TorneoEnCurso';
@@ -115,6 +116,7 @@ export default function App() {
         <audio ref={audioRef} src="src/assets/audio/BandaSonora.mp3" loop />
         <Routes>
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<CrearCuenta />} />
           <Route path="/admin" element={<ProtectedRoute><RoleRoute allowedRoles={['admin']}><AdminDashboard /></RoleRoute></ProtectedRoute>} />
           <Route path="/user" element={<ProtectedRoute><RoleRoute allowedRoles={['user']}><DashboardJugadoresPage /></RoleRoute></ProtectedRoute>} />
           <Route path="/jugadoresUser" element={<ProtectedRoute><RoleRoute allowedRoles={['user']}><JugadoresUserPage /></RoleRoute></ProtectedRoute>} />{/* <-- nueva ruta para rol user */}
@@ -133,7 +135,7 @@ export default function App() {
 
 
 
-          <Route path="/forbidden" element={<Forbidden />} /> DashboardLayoutUserGraficas
+          <Route path="/forbidden" element={<Forbidden />} /> 
           <Route path="/" element={<HomeRedirect />} />
           <Route path="*" element={<div className="container mt-5">Página no encontrada</div>} />
         </Routes>
