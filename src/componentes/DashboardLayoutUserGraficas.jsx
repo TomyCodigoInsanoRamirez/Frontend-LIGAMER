@@ -8,11 +8,10 @@ import LineChartGamers from "./LineChartGamers";
 
 export default function DashboardLayoutUserGraficas({ title, children }) {
     const menuItems = [
-    { id: 1, ruta: 'user', label: 'Jugadores' },
-    { id: 2, ruta: 'equipos', label: 'Equipos' },
-    { id: 3, ruta: 'jugadoresUser', label: 'Mi equipo' },
-    { id: 4, ruta: 'miEquipo', label: 'Resultados de mi equipo' },
-    { id: 5, ruta: 'torneosDisponibles', label: 'Torneo' },
+    { id: 1, ruta: 'perfil', label: 'Mi perfil', icon: 'bi-person-fill'},
+    { id: 2, ruta: 'miEquipo', label: 'Mi equipo', icon: 'bi-people-fill' },
+    { id: 3, ruta: 'torneosDisponibles', label: 'Torneos', icon: 'bi-trophy-fill' },
+    { id: 4, ruta: 'elegir-equipo', label: 'Elegir equipo', icon: 'bi-card-checklist' },
   ];
   return (
     <div className="dashboard-layout">

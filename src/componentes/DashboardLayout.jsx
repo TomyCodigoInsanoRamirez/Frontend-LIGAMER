@@ -5,8 +5,8 @@ import TablaCard from "./TablaCard";
 
 export default function DashboardLayout({ title, children }) {
   const menuItems = [
-    { id: 1, ruta: 'perfil', label: 'Perfil' },
-    { id: 2, ruta: 'asignar', label: 'Asignar Organizador' },
+    { id: 1, ruta: 'perfil', label: 'Perfil', icon: 'bi-person-fill' },
+    { id: 2, ruta: 'admin', label: 'Asignar Organizador', icon: 'bi-person-fill-up' },
   ];
   const encabezados = ["Imagen", "Nombre", "Correo", "Rol", "Estado", "Fecha", "Acciones"];
   const datos = [
@@ -25,7 +25,8 @@ export default function DashboardLayout({ title, children }) {
 
   ];
   const acciones = [
-    { accion: "Ver" },
+    { accion: "Asignar", icon: "bi-person-plus-fill"},
+    { accion: "Ver", icon: "bi-eye-fill" },
   ];
   return (
     <div className="dashboard-layout">

@@ -5,11 +5,11 @@ import TablaCard from "./TablaCard";
 
 export default function DashboardJugadores() {
   const menuItems = [
-    { id: 1, ruta: 'user', label: 'Jugadores' },
-    { id: 2, ruta: 'equipos', label: 'Equipos' },
-    { id: 3, ruta: 'jugadoresUser', label: 'Mi equipo' },
-    { id: 4, ruta: 'miEquipo', label: 'Resultados de mi equipo' },
-    { id: 5, ruta: 'torneosDisponibles', label: 'Torneos' },
+    { id: 1, ruta: 'user', label: 'Jugadores', icon: 'bi-person-lines-fill' },
+    { id: 2, ruta: 'equipos', label: 'Equipos', icon : 'bi-people-fill' },
+    { id: 3, ruta: 'jugadoresUser', label: 'Mi equipo', icon: 'bi-person-fill-gear' },
+    { id: 4, ruta: 'miEquipo', label: 'Resultados de mi equipo', icon: 'bi-bar-chart-fill' },
+    { id: 5, ruta: 'torneosDisponibles', label: 'Torneos', icon: 'bi-trophy-fill' },
   ];
 
   const encabezados = ["Nombre de usuario", "Ganadas", "Perdidas", "Acciones"];
@@ -27,7 +27,7 @@ export default function DashboardJugadores() {
   ];
 
   const acciones = [
-    { accion: "Detalles" },
+    { accion: "Detalles",  icon: "bi-eye-fill" },
   ];
 
   return (

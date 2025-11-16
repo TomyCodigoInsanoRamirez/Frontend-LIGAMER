@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import "bootstrap-icons/font/bootstrap-icons.css"; 
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(null);
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -68,15 +70,28 @@ export default function LoginPage() {
                     />
                   </div>
 
-                  <div className="mb-3 text-start">
+                  <div className="mb-3 text-start position-relative">
                     <label className="form-label">Contraseña:</label>
+
                     <input
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       placeholder="Introduce tu contraseña"
                       className="form-control"
                       value={password}
                       onChange={e => setPassword(e.target.value)}
                     />
+
+                    {/* Botón del ojo */}
+                    <button
+                      type="button"
+                      className="eye-btn"
+                      onClick={() => setShowPassword(!showPassword)}
+                      aria-label="Mostrar contraseña"
+                      style={{ right: 10 }}  
+                    >
+                      <i className={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"}`}></i>
+                    </button>
+
                     <div className="mt-2"><a className="text-light" href="#">¿Olvidaste tu contraseña?</a></div>
                   </div>
 

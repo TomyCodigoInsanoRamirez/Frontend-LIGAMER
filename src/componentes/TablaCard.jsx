@@ -74,41 +74,59 @@ export default function TablaCard({ encabezados = [], datos = [], acciones = [] 
   }, []);
 
   const renderAcciones = (fila) => {
-    return acciones.map(({ accion }, index) => {
-      if (accion === "Detalles") {
-        return (
-          <button
-            key={index}
-            className="btn-accion me-1"
-            onClick={(e) => {
-              e.stopPropagation();
-              abrirModal(fila);
-            }}
-          >
-            {/* <i className={`bx ${iconMap[item.ruta] || 'bxs-circle'}`} style={{ marginLeft: 6 }}></i> */}
-            {/* <i className="bx bx-home"></i> */}
-            <i className="bx bx-run"></i>
 
-          </button>
-        );
-      }
+  return acciones.map((a, index) => {
 
-      if (accion === "Ver") {
-        return (
-          <button
-            className="btn-accion me-1"
-            onClick={(e) => {
-              e.stopPropagation();
-              ir(fila); // ← Aquí sí puedes llamar a ir(fila)
-            }}
-          >
-            Ver
-          </button>
-        );
-      }
-      return null;
-    });
-  };
+    //Funcionalidad de ASIGNAR PENDIENTE
+    if (a.accion === "Asignar") {
+      return (
+        <button
+          key={index}
+          className="btn-accion me-1"
+          onClick={(e) => {
+            e.stopPropagation();
+            abrirModal(fila);
+          }}
+        >
+          <i className={a.icon}></i>
+        </button>
+      );
+    }
+    //PENDIENTEEE
+
+    if (a.accion === "Ver") {
+      return (
+        <button
+          key={index}
+          className="btn-accion me-1"
+          onClick={(e) => {
+            e.stopPropagation();
+            abrirModal(fila);
+          }}
+        >
+          <i className={a.icon}></i>
+        </button>
+      );
+    }
+
+    if (a.accion === "Ver") {
+      return (
+        <button
+          key={index}
+          className="btn-accion me-1"
+          onClick={(e) => {
+            e.stopPropagation();
+            ir(fila);
+          }}
+        >
+          <i className={a.icon}></i>
+        </button>
+      );
+    }
+
+    return null;
+  });
+};
 
   const Row = React.memo(function Row({ fila }) {
     return (

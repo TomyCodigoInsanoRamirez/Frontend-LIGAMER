@@ -41,10 +41,11 @@ export default function Sidebar({ menuItems = [] }) {
   const { user, logout } = useAuth();
 
   const iconMap = {
-    admin: 'bxs-user',
-    manager: 'bxs-group',
-    user: 'bxs-trophy',
+    admin: 'bi-person-fill',
+    manager: 'bi-people-fill',
+    user: 'bi-trophy-fill',
   };
+
 
   return (
     <nav className="navbar navbar-expand-lg navbar-dark" style={{ backgroundColor: '#00A6A6' }}>
@@ -62,7 +63,7 @@ export default function Sidebar({ menuItems = [] }) {
             {menuItems.map(item => (
               <li className="nav-item" key={item.id}>
                 <Link className="nav-link" to={`/${item.ruta}`}>
-                  {item.label} <i className={`bx ${iconMap[item.ruta] || 'bxs-circle'}`} style={{ marginLeft: 6 }}></i>
+                  {item.label} <i className={`${item.icon || 'bi-circle-fill'}`} style={{ marginLeft: 6 }}></i>
                 </Link>
               </li>
             ))}

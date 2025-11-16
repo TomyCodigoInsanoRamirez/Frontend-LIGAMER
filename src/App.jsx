@@ -11,6 +11,7 @@ import HomeRedirect from './pages/HomeRedirect';
 import CrearCuenta from './componentes/CrearCuenta';
 import CrearTorneo from './componentes/crearTorneo';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap-icons/font/bootstrap-icons.css';
 import TorneoEnCurso from './pages/TorneoEnCurso';
 import VerTorneoGuardado from './pages/TorneoGuardado';
 import PerfilDashboardManager from './pages/PerfilDashboardManager';
