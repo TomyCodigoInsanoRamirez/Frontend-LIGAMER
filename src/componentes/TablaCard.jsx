@@ -3,6 +3,8 @@ import "./TablaCard.css";
 import { Modal, Button } from "react-bootstrap";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
+import "boxicons/css/boxicons.min.css";
+
 
 
 export default function TablaCard({ encabezados = [], datos = [], acciones = [] }) {
@@ -83,7 +85,10 @@ export default function TablaCard({ encabezados = [], datos = [], acciones = [] 
               abrirModal(fila);
             }}
           >
-            Detalles
+            {/* <i className={`bx ${iconMap[item.ruta] || 'bxs-circle'}`} style={{ marginLeft: 6 }}></i> */}
+            {/* <i className="bx bx-home"></i> */}
+            <i className="bx bx-run"></i>
+
           </button>
         );
       }
