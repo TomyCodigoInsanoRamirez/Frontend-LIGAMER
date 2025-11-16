@@ -5,10 +5,11 @@ import TablaCard from "./TablaCard";
 
 export default function TorneosDisponibles({ title, children }) {
     const menuItems = [
-    { id: 1, ruta: 'perfil', label: 'Mi perfil', icon: 'bi-person-fill'},
-    { id: 2, ruta: 'miEquipo', label: 'Mi equipo', icon: 'bi-people-fill' },
-    { id: 3, ruta: 'torneosDisponibles', label: 'Torneos', icon: 'bi-trophy-fill' },
-    { id: 4, ruta: 'elegir-equipo', label: 'Elegir equipo', icon: 'bi-card-checklist' },
+    { id: 1, ruta: 'user', label: 'Jugadores', icon: 'bi-person-lines-fill' },
+    { id: 2, ruta: 'equipos', label: 'Equipos', icon : 'bi-people-fill' },
+    { id: 3, ruta: 'jugadoresUser', label: 'Mi equipo', icon: 'bi-person-fill-gear' },
+    { id: 4, ruta: 'miEquipo', label: 'Resultados de mi equipo', icon: 'bi-bar-chart-fill' },
+    { id: 5, ruta: 'torneosDisponibles', label: 'Torneos', icon: 'bi-trophy-fill' },
   ];
 
   const encabezados = [ "Nombre", "Organizador", "Equipos", "Acciones"];
@@ -28,6 +29,8 @@ export default function TorneosDisponibles({ title, children }) {
   ];
   const acciones = [
     { accion: "Detalles", icon: "bi-eye-fill" },
+    { accion: "Unirse", icon: "bi-person-fill-add" },
+    
   ];
   return (
     <div className="dashboard-layout">

@@ -12,22 +12,23 @@ export default function DashboardJugadores() {
     { id: 5, ruta: 'torneosDisponibles', label: 'Torneos', icon: 'bi-trophy-fill' },
   ];
 
-  const encabezados = ["Nombre de usuario", "Ganadas", "Perdidas", "Acciones"];
+  const encabezados = ["Nombre","Nombre de usuario", "Ganadas", "Perdidas", "Acciones"];
   const datos = [
-    { id: 1, "nombre de usuario": "JuanPerez", ganadas: 15, perdidas: 3 },
-    { id: 2, "nombre de usuario": "MariaGonzalez", ganadas: 12, perdidas: 5 },
-    { id: 3, "nombre de usuario": "CarlosMartinez", ganadas: 18, perdidas: 2 },
-    { id: 4, "nombre de usuario": "AnaLopez", ganadas: 10, perdidas: 8 },
-    { id: 5, "nombre de usuario": "PedroSanchez", ganadas: 14, perdidas: 4 },
-    { id: 6, "nombre de usuario": "LuisaRodriguez", ganadas: 9, perdidas: 9 },
-    { id: 7, "nombre de usuario": "FranciscoTorres", ganadas: 16, perdidas: 3 },
-    { id: 8, "nombre de usuario": "IsabelPerez", ganadas: 11, perdidas: 7 },
-    { id: 9, "nombre de usuario": "RobertoRamirez", ganadas: 13, perdidas: 5 },
-    { id: 10, "nombre de usuario": "SofiaGarcia", ganadas: 17, perdidas: 1 },
+    { id: 1, nombre:"Rubén Gómez", "nombre de usuario": "JuanPerez", ganadas: 15, perdidas: 3 },
+    { id: 2, nombre:"Rubén Gómez", "nombre de usuario": "MariaGonzalez", ganadas: 12, perdidas: 5 },
+    { id: 3, nombre:"Rubén Gómez", "nombre de usuario": "CarlosMartinez", ganadas: 18, perdidas: 2 },
+    { id: 4, nombre:"Rubén Gómez", "nombre de usuario": "AnaLopez", ganadas: 10, perdidas: 8 },
+    { id: 5, nombre:"Rubén Gómez", "nombre de usuario": "PedroSanchez", ganadas: 14, perdidas: 4 },
+    { id: 6, nombre:"Rubén Gómez", "nombre de usuario": "LuisaRodriguez", ganadas: 9, perdidas: 9 },
+    { id: 7, nombre:"Rubén Gómez", "nombre de usuario": "FranciscoTorres", ganadas: 16, perdidas: 3 },
+    { id: 8, nombre:"Rubén Gómez", "nombre de usuario": "IsabelPerez", ganadas: 11, perdidas: 7 },
+    { id: 9, nombre:"Rubén Gómez", "nombre de usuario": "RobertoRamirez", ganadas: 13, perdidas: 5 },
+    { id: 10, nombre:"Rubén Gómez", "nombre de usuario": "SofiaGarcia", ganadas: 17, perdidas: 1 },
   ];
 
   const acciones = [
     { accion: "Detalles",  icon: "bi-eye-fill" },
+    { accion: "Retar",  icon: "bi-send-fill" },
   ];
 
   return (

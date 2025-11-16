@@ -3,8 +3,6 @@ import "./TablaCard.css";
 import { Modal, Button } from "react-bootstrap";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
-import "boxicons/css/boxicons.min.css";
-
 
 
 export default function TablaCard({ encabezados = [], datos = [], acciones = [] }) {
@@ -76,7 +74,7 @@ export default function TablaCard({ encabezados = [], datos = [], acciones = [] 
   const renderAcciones = (fila) => {
 
   return acciones.map((a, index) => {
-
+    console.log("Si deberia de tener acciones")
     //Funcionalidad de ASIGNAR PENDIENTE
     if (a.accion === "Asignar") {
       return (
@@ -94,7 +92,7 @@ export default function TablaCard({ encabezados = [], datos = [], acciones = [] 
     }
     //PENDIENTEEE
 
-    if (a.accion === "Ver") {
+    if (a.accion === "Detalles") {
       return (
         <button
           key={index}
@@ -110,6 +108,36 @@ export default function TablaCard({ encabezados = [], datos = [], acciones = [] 
     }
 
     if (a.accion === "Ver") {
+      return (
+        <button
+          key={index}
+          className="btn-accion me-1"
+          onClick={(e) => {
+            e.stopPropagation();
+            ir(fila);
+          }}
+        >
+          <i className={a.icon}></i>
+        </button>
+      );
+    }
+
+    if (a.accion === "Retar") {
+      return (
+        <button
+          key={index}
+          className="btn-accion me-1"
+          onClick={(e) => {
+            e.stopPropagation();
+            ir(fila);
+          }}
+        >
+          <i className={a.icon}></i>
+        </button>
+      );
+    }
+
+    if (a.accion === "Unirse") {
       return (
         <button
           key={index}
@@ -174,8 +202,8 @@ export default function TablaCard({ encabezados = [], datos = [], acciones = [] 
         <div className="encabezados">
           {encabezados.includes("Imagen") }
           {encabezados.map((col, i) => (
-            <div key={i} className="encabezado-item">
-              {col}
+            <div key={i} className="encabezado-item" style={{color:"white", textWrap : 'wrap'}}>
+              {col} 
             </div>
           ))}
         </div>

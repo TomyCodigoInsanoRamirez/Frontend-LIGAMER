@@ -24,6 +24,7 @@ export default function JugadoresList() {
 
   const acciones = [
     { accion: "Detalles", icon: "bi-eye-fill" },
+    { accion: "Retar", icon: "bi-send-fill" },
   ];
 
   return (

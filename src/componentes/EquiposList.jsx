@@ -23,6 +23,7 @@ export default function EquiposList() {
 
   const acciones = [
     { accion: "Detalles", icon: "bi-eye-fill" },
+    { accion: "Unirse", icon: "bi-person-fill-add" }, 
   ];
 
   return (

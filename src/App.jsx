@@ -20,7 +20,6 @@ import Perfil from './pages/Perfil';
 import DashboardJugadoresPage from './pages/DashboardJugadores';
 import EquiposPage from './pages/Equipos'; // <-- ya existente
 import JugadoresUserPage from './pages/JugadoresUser'; // <-- nueva importación
-import 'boxicons/css/boxicons.min.css';
 
 
 
@@ -122,7 +121,7 @@ export default function App() {
           <Route path="/user" element={<ProtectedRoute><RoleRoute allowedRoles={['user']}><DashboardJugadoresPage /></RoleRoute></ProtectedRoute>} />
           <Route path="/jugadoresUser" element={<ProtectedRoute><RoleRoute allowedRoles={['user']}><JugadoresUserPage /></RoleRoute></ProtectedRoute>} />{/* <-- nueva ruta para rol user */}
           <Route path="/equipos" element={<ProtectedRoute><RoleRoute allowedRoles={['admin','manager','user']}><EquiposPage /></RoleRoute></ProtectedRoute>} />{/* <-- nueva ruta */}
-          <Route path="/manager" element={<ProtectedRoute><RoleRoute allowedRoles={['manager']}><PerfilDashboardManager /></RoleRoute></ProtectedRoute>} />
+          <Route path="/manager" element={<ProtectedRoute><RoleRoute allowedRoles={['manager']}><ManagerDashboard /></RoleRoute></ProtectedRoute>} />
           <Route path="/torneos" element={<ProtectedRoute><RoleRoute allowedRoles={['manager']}><ManagerDashboard /></RoleRoute></ProtectedRoute>} />
           {/* <Route path="/user" element={<ProtectedRoute><RoleRoute allowedRoles={['user']}><UserDashboard /></RoleRoute></ProtectedRoute>} /> */}
           <Route path="/torneosDisponibles" element={<ProtectedRoute><RoleRoute allowedRoles={['user',]}><TorneosDisponibless /></RoleRoute></ProtectedRoute>} />
