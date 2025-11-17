@@ -2,6 +2,8 @@ import React from "react";
 import './DashboardLayout.css';
 import Sidebar from "./Sidebar";
 import TablaCard from "./TablaCard";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 
 export default function TorneosDisponibles({ title, children }) {
     const menuItems = [
@@ -29,9 +31,26 @@ export default function TorneosDisponibles({ title, children }) {
   ];
   const acciones = [
     { accion: "Detalles", icon: "bi-eye-fill" },
-    { accion: "Unirse", icon: "bi-person-fill-add" },
-    
+    { accion: "Unirse", icon: "bi-person-fill-add" },	
   ];
+
+  const MySwal = withReactContent(Swal);
+  const handleUnirse = (torneo) => {
+    MySwal.fire({
+      title: `¿Unirte a "${torneo.nombre}"?`,
+      text: `Organizador: ${torneo.organizador}\nCupos: ${torneo.equipos}`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, unirme',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // Aquí pones la lógica real de unirse (API call, navegación, etc.)
+        MySwal.fire('¡Listo!', 'Te uniste al torneo.', 'success');
+      }
+    });
+  };
+
   return (
     <div className="dashboard-layout">
       <Sidebar menuItems={menuItems} />
@@ -42,6 +61,7 @@ export default function TorneosDisponibles({ title, children }) {
               encabezados={encabezados}
               datos={datos}
               acciones={acciones}
+              onUnirse={handleUnirse}
             />
           </div>
         </div>

@@ -2,6 +2,10 @@ import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './CrearCuenta.css';
 import "bootstrap-icons/font/bootstrap-icons.css";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
+
+const MySwal = withReactContent(Swal);
 
 export default function CrearCuenta() {
   const navigate = useNavigate();
@@ -23,11 +27,28 @@ export default function CrearCuenta() {
     navigate('/login');
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Aquí puedes añadir validaciones y llamada a la API
+    const result = await MySwal.fire({
+      title: 'Confirmar registro',
+      text: '¿Deseas crear la cuenta con los datos ingresados?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, registrar',
+      cancelButtonText: 'Cancelar'
+    });
+
+    if (!result.isConfirmed) {
+      return;
+    }
+
     console.log('Registrando usuario:', form);
-    // Navegar al login o a otra pantalla
+    await MySwal.fire({
+      icon: 'success',
+      title: 'Registrado',
+      text: 'Tu cuenta fue creada correctamente.',
+      confirmButtonText: 'Aceptar'
+    });
     navigate('/login');
   };
 

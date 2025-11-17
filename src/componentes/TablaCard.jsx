@@ -3,9 +3,11 @@ import "./TablaCard.css";
 import { Modal, Button } from "react-bootstrap";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 
 
-export default function TablaCard({ encabezados = [], datos = [], acciones = [] }) {
+export default function TablaCard({ encabezados = [], datos = [], acciones = [], onUnirse }) {
   const [paginaActual, setPaginaActual] = useState(1);
   const [modalAbierto, setModalAbierto] = useState(false);
   const [filaSeleccionada, setFilaSeleccionada] = useState(null);
@@ -71,6 +73,45 @@ export default function TablaCard({ encabezados = [], datos = [], acciones = [] 
     setFilaSeleccionada(null);
   }, []);
 
+  // SweetAlert2 wrapper
+  const MySwal = withReactContent(Swal);
+
+  // Función genérica que pide confirmación y ejecuta la acción
+  const handleAccionClick = useCallback((accionObj, fila, e) => {
+    if (e) e.stopPropagation();
+    const accion = accionObj?.accion || "Acción";
+    MySwal.fire({
+      title: `¿${accion} "${fila.nombre || ''}"?`,
+      text: `Organizador: ${fila.organizador || '-'}\nEquipos: ${fila.equipos ?? '-'}`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Confirmar',
+      cancelButtonText: 'Cancelar'
+    }).then((result) => {
+      if (!result.isConfirmed) return;
+      // Ejecutar acción real según tipo
+      if (accion === "Asignar" || accion === "Detalles") {
+        abrirModal(fila);
+        return;
+      }
+      if (accion === "Ver" || accion === "Retar") {
+        ir(fila);
+        return;
+      }
+      if (accion === "Unirse") {
+        if (typeof onUnirse === "function") {
+          onUnirse(fila);
+        } else {
+          // fallback a navegación si no hay callback
+          ir(fila);
+        }
+        return;
+      }
+      // Otros casos: fallback a abrir modal
+      abrirModal(fila);
+    });
+  }, [MySwal, abrirModal, ir, onUnirse]);
+
   const renderAcciones = (fila) => {
 
   return acciones.map((a, index) => {
@@ -81,10 +122,7 @@ export default function TablaCard({ encabezados = [], datos = [], acciones = [] 
         <button
           key={index}
           className="btn-accion me-1"
-          onClick={(e) => {
-            e.stopPropagation();
-            abrirModal(fila);
-          }}
+          onClick={(e) => handleAccionClick(a, fila, e)}
         >
           <i className={a.icon}></i>
         </button>
@@ -92,6 +130,7 @@ export default function TablaCard({ encabezados = [], datos = [], acciones = [] 
     }
     //PENDIENTEEE
 
+    // Detalles: abrir modal directamente (sin SweetAlert)
     if (a.accion === "Detalles") {
       return (
         <button
@@ -112,10 +151,7 @@ export default function TablaCard({ encabezados = [], datos = [], acciones = [] 
         <button
           key={index}
           className="btn-accion me-1"
-          onClick={(e) => {
-            e.stopPropagation();
-            ir(fila);
-          }}
+          onClick={(e) => handleAccionClick(a, fila, e)}
         >
           <i className={a.icon}></i>
         </button>
@@ -127,10 +163,7 @@ export default function TablaCard({ encabezados = [], datos = [], acciones = [] 
         <button
           key={index}
           className="btn-accion me-1"
-          onClick={(e) => {
-            e.stopPropagation();
-            ir(fila);
-          }}
+          onClick={(e) => handleAccionClick(a, fila, e)}
         >
           <i className={a.icon}></i>
         </button>
@@ -142,10 +175,7 @@ export default function TablaCard({ encabezados = [], datos = [], acciones = [] 
         <button
           key={index}
           className="btn-accion me-1"
-          onClick={(e) => {
-            e.stopPropagation();
-            ir(fila);
-          }}
+          onClick={(e) => handleAccionClick(a, fila, e)}
         >
           <i className={a.icon}></i>
         </button>
