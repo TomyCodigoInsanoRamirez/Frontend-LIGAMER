@@ -15,11 +15,14 @@ export default function ResetPassword() {
     e.preventDefault();
     const result = await MySwal.fire({
       title: "¿Enviar enlace de restablecimiento?",
-      text: `Se enviará un enlace al correo proporcionado (no se mostrará información adicional).`,
+      text: `Se enviará un enlace al correo proporcionado.`,
       icon: "question",
       showCancelButton: true,
       confirmButtonText: "Enviar",
-      cancelButtonText: "Cancelar"
+      cancelButtonText: "Cancelar",
+      confirmButtonColor: "#4A3287",
+      cancelButtonColor: "#dc3545",
+      reverseButtons: true
     });
 
     if (!result.isConfirmed) return;
@@ -29,9 +32,9 @@ export default function ResetPassword() {
     await MySwal.fire({
       icon: "success",
       title: "Enviado",
-      text: "Si el correo existe en el sistema, recibirás un enlace para restablecer tu contraseña.",
-      confirmButtonText: "Aceptar"
-      
+      text: "Hemos enviado un enlace a tu correo para restablecer tu contraseña. Haz clic en él para seguir con el proceso.",
+      confirmButtonText: "Aceptar",
+      confirmButtonColor: "#4A3287"
     });
 
     // Volver al login tras enviar (opcional)

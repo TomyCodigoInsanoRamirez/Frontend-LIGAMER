@@ -80,25 +80,77 @@ export default function TablaCard({ encabezados = [], datos = [], acciones = [],
   const handleAccionClick = useCallback((accionObj, fila, e) => {
     if (e) e.stopPropagation();
     const accion = accionObj?.accion || "Acción";
-    MySwal.fire({
+    
+    // Configuración especial para la acción "Unirse"
+    let alertConfig = {
       title: `¿${accion} "${fila.nombre || ''}"?`,
       text: `Organizador: ${fila.organizador || '-'}\nEquipos: ${fila.equipos ?? '-'}`,
       icon: 'question',
       showCancelButton: true,
       confirmButtonText: 'Confirmar',
-      cancelButtonText: 'Cancelar'
-    }).then((result) => {
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#4A3287',
+      cancelButtonColor: '#dc3545',
+      reverseButtons: true
+    };
+
+    if (accion === "Unirse") {
+      alertConfig.title = `¿Deseas unirte al equipo "${fila.nombre || ''}"?`;
+      alertConfig.text = `Al confirmar, se enviará una solicitud para unirte a este equipo. El administrador revisará tu solicitud y te notificará la respuesta.`;
+    }
+
+    if (accion === "Asignar") {
+      alertConfig.title = `¿Asignar como organizador a "${fila.nombre || ''}"?`;
+      alertConfig.text = `Al confirmar, se asignará a esta persona como organizador.`;
+    }
+
+    MySwal.fire(alertConfig).then((result) => {
       if (!result.isConfirmed) return;
       // Ejecutar acción real según tipo
-      if (accion === "Asignar" || accion === "Detalles") {
+      if (accion === "Asignar") {
+        // Mostrar alerta de éxito después de confirmar
+        MySwal.fire({
+          icon: 'success',
+          title: 'Organizador asignado correctamente',
+          text: `Se ha asignado a "${fila.nombre || ''}" como organizador.`,
+          confirmButtonText: 'Aceptar',
+          confirmButtonColor: '#4A3287'
+        }).then(() => {
+          abrirModal(fila);
+        });
+        return;
+      }
+      if (accion === "Detalles") {
         abrirModal(fila);
         return;
       }
-      if (accion === "Ver" || accion === "Retar") {
+      if (accion === "Retar") {
+        // Mostrar alerta de éxito después de confirmar
+        MySwal.fire({
+          icon: 'success',
+          title: 'Reto enviado',
+          text: `Has retado a "${fila.nombre || ''}".`,
+          confirmButtonText: 'Aceptar',
+          confirmButtonColor: '#4A3287'
+        }).then(() => {
+          ir(fila);
+        });
+        return;
+      }
+      if (accion === "Ver") {
         ir(fila);
         return;
       }
       if (accion === "Unirse") {
+        // Mostrar alerta de éxito después de confirmar
+        MySwal.fire({
+          icon: 'success',
+          title: 'Solicitud enviada',
+          text: `Ya has solicitado unirte al equipo "${fila.nombre || ''}". Espera respuesta del administrador.`,
+          confirmButtonText: 'Aceptar',
+          confirmButtonColor: '#4A3287'
+        });
+        
         if (typeof onUnirse === "function") {
           onUnirse(fila);
         } else {

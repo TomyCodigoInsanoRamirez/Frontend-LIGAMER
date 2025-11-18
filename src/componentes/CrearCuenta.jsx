@@ -35,7 +35,10 @@ export default function CrearCuenta() {
       icon: 'question',
       showCancelButton: true,
       confirmButtonText: 'Sí, registrar',
-      cancelButtonText: 'Cancelar'
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#4A3287',
+      cancelButtonColor: '#dc3545',
+      reverseButtons: true
     });
 
     if (!result.isConfirmed) {
@@ -45,9 +48,10 @@ export default function CrearCuenta() {
     console.log('Registrando usuario:', form);
     await MySwal.fire({
       icon: 'success',
-      title: 'Registrado',
-      text: 'Tu cuenta fue creada correctamente.',
-      confirmButtonText: 'Aceptar'
+      title: '¡Bienvenido!',
+      text: ' Tu cuenta ha sido creada exitosamente.',
+      confirmButtonText: 'Aceptar',
+      confirmButtonColor: '#4A3287'
     });
     navigate('/login');
   };

@@ -42,11 +42,20 @@ export default function TorneosDisponibles({ title, children }) {
       icon: 'question',
       showCancelButton: true,
       confirmButtonText: 'Sí, unirme',
-      cancelButtonText: 'Cancelar'
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#4A3287',
+      cancelButtonColor: '#dc3545',
+      reverseButtons: true
     }).then((result) => {
       if (result.isConfirmed) {
         // Aquí pones la lógica real de unirse (API call, navegación, etc.)
-        MySwal.fire('¡Listo!', 'Te uniste al torneo.', 'success');
+        MySwal.fire({
+          icon: 'success',
+          title: '¡Listo!',
+          text: 'Te uniste al torneo.',
+          confirmButtonText: 'Aceptar',
+          confirmButtonColor: '#4A3287'
+        });
       }
     });
   };

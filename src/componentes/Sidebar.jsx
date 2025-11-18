@@ -38,7 +38,9 @@ export default function Sidebar({ menuItems = [] }) {
             {/* <span className="navbar-text me-3" style={{ color: '#fff' }}>
               {user ? `Usuario: ${user.username || user?.username || ''}` : ''}
             </span> */}
-            <button className="btn btn-outline-light btn-sm" style={{margin:5}} ><span className="navbar-text me-3" style={{ color: '#fff' }}> {user ? `Perfil de ${user.username || user?.username || 'Finy_231'}` : ''} </span></button>
+            <Link to="/perfil" className="btn btn-outline-light btn-sm" style={{margin:5}}>
+              <span className="navbar-text me-3" style={{ color: '#fff' }}> {user ? `Perfil ${user.username || user?.username || 'Finny_231'}` : 'Perfil Finny_231'} </span>
+            </Link>
             <button className="btn btn-outline-light btn-sm" onClick={logout}>Cerrar sesión</button>
           </div>
         </div>
