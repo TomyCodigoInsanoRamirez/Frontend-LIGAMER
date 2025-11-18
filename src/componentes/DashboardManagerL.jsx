@@ -5,9 +5,9 @@ import TablaCard from "./TablaCard";
 
 export default function DashboardManagerL({ title, children }) {
     const menuItems = [
-    { id: 1, ruta: 'manager', label: 'Mi perfil' },
-    { id: 2, ruta: 'torneos', label: 'Torneos' },
-    { id: 3, ruta: 'crearTorneo', label: 'Crear Torneo' },
+    { id: 1, ruta: 'manager', label: 'Mi perfil', icon: 'bi-person-fill' },
+    { id: 2, ruta: 'torneos', label: 'Torneos', icon: 'bi-trophy-fill' },
+    { id: 3, ruta: 'crearTorneo', label: 'Crear Torneo', icon: 'bi-clipboard-check-fill' }, 
   ];
   const encabezados = [ "Nombre", "Estado", "Descripcion",  "Acciones"];
   const datos = [
@@ -17,8 +17,8 @@ export default function DashboardManagerL({ title, children }) {
     { id: 4, nombre: "Liga de campeones",descripcion: 'Lorem ipsum es el texto que se usa habitualmente en diseño gráfico en demostraciones de tipografías o de borradores de diseño para probar el diseño visual antes de insertar el texto final.', estado: "En curso" }
   ]
   const acciones = [
-    { accion: "Detalles" },
-    {accion : "Ver"}
+    { accion: "Detalles", icon: "bi-eye-fill" },
+    { accion: "Ver", icon: "bi-diagram-3" }
     // Puedes agregar más acciones aquí en el futuro
   ];
   return (

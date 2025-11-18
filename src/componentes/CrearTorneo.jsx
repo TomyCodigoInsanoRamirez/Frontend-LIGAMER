@@ -4,6 +4,10 @@ import './CrearTorneo.css';
 import { useNavigate } from 'react-router-dom';
 import { Modal, Button, Form, InputGroup, ListGroup } from 'react-bootstrap';
 import { useAuth } from '../context/AuthContext';
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
+
+const MySwal = withReactContent(Swal);
 
 export default function CrearTorneo({ estado = "Nuevo", datosGuardados = {}, equipos = [] }) {
   const [tournamentName, setTournamentName] = useState('');
@@ -371,21 +375,35 @@ export default function CrearTorneo({ estado = "Nuevo", datosGuardados = {}, equ
   };
 
   const handleCancel = () => {
-    setTournamentName('');
-    setDescription('');
-    setNumTeams(8);
-    setStartDate('');
-    setEndDate('');
-    setRegistrationCloseDate('');
-    setRules('');
-    setRuleList([]);
-    setGenerateTrigger(0);
-    setMatches({});
-    setTeamData({});
-    setGraph({ childToParent: {}, parentToChildren: {} });
-    setNodes([]);
-    setConnections([]);
-    navigate('/manager');
+    MySwal.fire({
+      title: '¿Desea cancelar la creación del torneo?',
+      text: 'Si lo quieres modificar más tarde, elige la opción "Guardar"',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Aceptar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#4A3287',
+      cancelButtonColor: '#dc3545',
+      reverseButtons: true
+    }).then((result) => {
+      if (result.isConfirmed) {
+        setTournamentName('');
+        setDescription('');
+        setNumTeams(8);
+        setStartDate('');
+        setEndDate('');
+        setRegistrationCloseDate('');
+        setRules('');
+        setRuleList([]);
+        setGenerateTrigger(0);
+        setMatches({});
+        setTeamData({});
+        setGraph({ childToParent: {}, parentToChildren: {} });
+        setNodes([]);
+        setConnections([]);
+        navigate('/manager');
+      }
+    });
   };
 
   return (

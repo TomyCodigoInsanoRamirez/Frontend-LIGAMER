@@ -8,13 +8,20 @@ import UserDashboard from './pages/UserDashboard';
 import DashboardLayoutUserGraficas from './componentes/DashboardLayoutUserGraficas';
 import Forbidden from './pages/Forbidden';
 import HomeRedirect from './pages/HomeRedirect';
+import CrearCuenta from './componentes/CrearCuenta';
 import CrearTorneo from './componentes/crearTorneo';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap-icons/font/bootstrap-icons.css';
 import TorneoEnCurso from './pages/TorneoEnCurso';
 import VerTorneoGuardado from './pages/TorneoGuardado';
 import PerfilDashboardManager from './pages/PerfilDashboardManager';
 import TorneosDisponibless from './pages/TorneosDisponibles';
 import Perfil from './pages/Perfil';
+import DashboardJugadoresPage from './pages/DashboardJugadores';
+import EquiposPage from './pages/Equipos'; // <-- ya existente
+import JugadoresUserPage from './pages/JugadoresUser'; // <-- nueva importación
+import ResetPassword from './componentes/ResetPassword';
+
 
 
 function ProtectedRoute({ children }) {
@@ -111,10 +118,17 @@ export default function App() {
         <audio ref={audioRef} src="src/assets/audio/BandaSonora.mp3" loop />
         <Routes>
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<CrearCuenta />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
+
+          
           <Route path="/admin" element={<ProtectedRoute><RoleRoute allowedRoles={['admin']}><AdminDashboard /></RoleRoute></ProtectedRoute>} />
-          <Route path="/manager" element={<ProtectedRoute><RoleRoute allowedRoles={['manager']}><PerfilDashboardManager /></RoleRoute></ProtectedRoute>} />
+          <Route path="/user" element={<ProtectedRoute><RoleRoute allowedRoles={['user']}><DashboardJugadoresPage /></RoleRoute></ProtectedRoute>} />
+          <Route path="/jugadoresUser" element={<ProtectedRoute><RoleRoute allowedRoles={['user']}><JugadoresUserPage /></RoleRoute></ProtectedRoute>} />{/* <-- nueva ruta para rol user */}
+          <Route path="/equipos" element={<ProtectedRoute><RoleRoute allowedRoles={['admin','manager','user']}><EquiposPage /></RoleRoute></ProtectedRoute>} />{/* <-- nueva ruta */}
+          <Route path="/manager" element={<ProtectedRoute><RoleRoute allowedRoles={['manager']}><ManagerDashboard /></RoleRoute></ProtectedRoute>} />
           <Route path="/torneos" element={<ProtectedRoute><RoleRoute allowedRoles={['manager']}><ManagerDashboard /></RoleRoute></ProtectedRoute>} />
-          <Route path="/user" element={<ProtectedRoute><RoleRoute allowedRoles={['user']}><UserDashboard /></RoleRoute></ProtectedRoute>} />
+          {/* <Route path="/user" element={<ProtectedRoute><RoleRoute allowedRoles={['user']}><UserDashboard /></RoleRoute></ProtectedRoute>} /> */}
           <Route path="/torneosDisponibles" element={<ProtectedRoute><RoleRoute allowedRoles={['user',]}><TorneosDisponibless /></RoleRoute></ProtectedRoute>} />
           <Route path="/perfil" element={<ProtectedRoute><RoleRoute allowedRoles={['user','admin','manager']}><Perfil userData={userData} onUpdate={handleUpdate}/></RoleRoute></ProtectedRoute>} />
 
@@ -126,7 +140,7 @@ export default function App() {
 
 
 
-          <Route path="/forbidden" element={<Forbidden />} /> DashboardLayoutUserGraficas
+          <Route path="/forbidden" element={<Forbidden />} /> 
           <Route path="/" element={<HomeRedirect />} />
           <Route path="*" element={<div className="container mt-5">Página no encontrada</div>} />
         </Routes>

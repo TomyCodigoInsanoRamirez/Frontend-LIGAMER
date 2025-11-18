@@ -5,9 +5,9 @@ import TablaCard from "./TablaCard";
 
 export default function PerfilManager({ title, children }) {
     const menuItems = [
-    { id: 1, ruta: 'manager', label: 'Mi perfil' },
-    { id: 2, ruta: 'torneos', label: 'Torneos' },
-    { id: 3, ruta: 'crearTorneo', label: 'Crear Torneo' },
+    { id: 1, ruta: 'manager', label: 'Mi perfil', icon: 'bi-person-fill' },
+    { id: 2, ruta: 'torneos', label: 'Torneos', icon: 'bi-trophy-fill' },
+    { id: 3, ruta: 'crearTorneo', label: 'Crear Torneo', icon: 'bi-clipboard-check-fill' }, 
   ];
 
   const encabezados = ["Imagen", "Lider", "Estado",  "Acciones"];
@@ -18,7 +18,7 @@ export default function PerfilManager({ title, children }) {
 
   ];
   const acciones = [
-    { accion: "Ver" },
+    { accion: "Ver", icon: "bi-eye-fill" },
     // Puedes agregar más acciones aquí en el futuro
   ];
   return (

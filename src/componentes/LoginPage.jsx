@@ -1,10 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import "bootstrap-icons/font/bootstrap-icons.css"; 
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
+
+const MySwal = withReactContent(Swal);
 
 export default function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(null);
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -40,7 +46,17 @@ export default function LoginPage() {
       if (u.role === 'ROLE_ADMINISTRADOR' || u.role === 'admin') navigate('/admin');
       else if (u.role === 'ROLE_ORGANIZADOR' || u.role === 'manager') navigate('/manager');
       else navigate('/user');
-    } catch (err) { setError(err.message); }
+    } catch (err) {
+      // Mostrar alerta genérica sin indicar qué dato falló
+      MySwal.fire({
+        icon: "error",
+        title: "Credenciales incorrectas",
+        text: "Las credenciales que ingresaste no son válidas. Intenta de nuevo.",
+        confirmButtonText: "Aceptar"
+      });
+      // Mantener texto de error opcionalmente para la UI
+      setError(err?.message || "Credenciales incorrectas");
+    }
   };
 
   return (
@@ -68,16 +84,29 @@ export default function LoginPage() {
                     />
                   </div>
 
-                  <div className="mb-3 text-start">
+                  <div className="mb-3 text-start position-relative">
                     <label className="form-label">Contraseña:</label>
+
                     <input
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       placeholder="Introduce tu contraseña"
                       className="form-control"
                       value={password}
                       onChange={e => setPassword(e.target.value)}
                     />
-                    <div className="mt-2"><a className="text-light" href="#">¿Olvidaste tu contraseña?</a></div>
+
+                    {/* Botón del ojo */}
+                    <button
+                      type="button"
+                      className="eye-btn"
+                      onClick={() => setShowPassword(!showPassword)}
+                      aria-label="Mostrar contraseña"
+                      style={{ right: 10 }}  
+                    >
+                      <i className={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"}`}></i>
+                    </button>
+
+                    <div className="mt-2"><Link className="text-light" to="/reset-password">¿Olvidaste tu contraseña?</Link></div>
                   </div>
 
                   {error && <div className="text-danger mb-2">{error}</div>}
@@ -90,7 +119,7 @@ export default function LoginPage() {
 
                   <div className="d-flex justify-content-center text-center text-light">
                     <p className="mb-0 me-2">¿Aun no tienes cuenta?</p>
-                    <a className="text-light" href="#">Crear cuenta</a>
+                    <Link className="text-light" to="/register">Crear cuenta</Link>
                   </div>
                 </form>
               </div>
@@ -98,7 +127,7 @@ export default function LoginPage() {
 
             {/* Right: imagen decorativa, oculta en pantallas pequeñas */}
             <div className="d-none d-md-flex align-items-center justify-content-center" style={{ backgroundColor: '#00A6A6', width: 220 }}>
-              <img src="src/assets/imagenes/Control.png" alt="Decoración" style={{ maxWidth: '100%', height: 'auto' }} />
+              <img src="src/assets/imagenes/Control.png" alt="Decoración" style={{ maxWidth: '50%', height: 'auto' }} />
             </div>
           </div>
         </div>

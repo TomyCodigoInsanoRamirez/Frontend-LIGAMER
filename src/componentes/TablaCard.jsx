@@ -3,9 +3,11 @@ import "./TablaCard.css";
 import { Modal, Button } from "react-bootstrap";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 
 
-export default function TablaCard({ encabezados = [], datos = [], acciones = [] }) {
+export default function TablaCard({ encabezados = [], datos = [], acciones = [], onUnirse }) {
   const [paginaActual, setPaginaActual] = useState(1);
   const [modalAbierto, setModalAbierto] = useState(false);
   const [filaSeleccionada, setFilaSeleccionada] = useState(null);
@@ -71,39 +73,170 @@ export default function TablaCard({ encabezados = [], datos = [], acciones = [] 
     setFilaSeleccionada(null);
   }, []);
 
-  const renderAcciones = (fila) => {
-    return acciones.map(({ accion }, index) => {
-      if (accion === "Detalles") {
-        return (
-          <button
-            key={index}
-            className="btn-accion me-1"
-            onClick={(e) => {
-              e.stopPropagation();
-              abrirModal(fila);
-            }}
-          >
-            Detalles
-          </button>
-        );
-      }
+  // SweetAlert2 wrapper
+  const MySwal = withReactContent(Swal);
 
-      if (accion === "Ver") {
-        return (
-          <button
-            className="btn-accion me-1"
-            onClick={(e) => {
-              e.stopPropagation();
-              ir(fila); // ← Aquí sí puedes llamar a ir(fila)
-            }}
-          >
-            Ver
-          </button>
-        );
+  // Función genérica que pide confirmación y ejecuta la acción
+  const handleAccionClick = useCallback((accionObj, fila, e) => {
+    if (e) e.stopPropagation();
+    const accion = accionObj?.accion || "Acción";
+    
+    // Configuración especial para la acción "Unirse"
+    let alertConfig = {
+      title: `¿${accion} "${fila.nombre || ''}"?`,
+      text: `Organizador: ${fila.organizador || '-'}\nEquipos: ${fila.equipos ?? '-'}`,
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Confirmar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#4A3287',
+      cancelButtonColor: '#dc3545',
+      reverseButtons: true
+    };
+
+    if (accion === "Unirse") {
+      alertConfig.title = `¿Deseas unirte al equipo "${fila.nombre || ''}"?`;
+      alertConfig.text = `Al confirmar, se enviará una solicitud para unirte a este equipo. El administrador revisará tu solicitud y te notificará la respuesta.`;
+    }
+
+    if (accion === "Asignar") {
+      alertConfig.title = `¿Asignar como organizador a "${fila.nombre || ''}"?`;
+      alertConfig.text = `Al confirmar, se asignará a esta persona como organizador.`;
+    }
+
+    MySwal.fire(alertConfig).then((result) => {
+      if (!result.isConfirmed) return;
+      // Ejecutar acción real según tipo
+      if (accion === "Asignar") {
+        // Mostrar alerta de éxito después de confirmar
+        MySwal.fire({
+          icon: 'success',
+          title: 'Organizador asignado correctamente',
+          text: `Se ha asignado a "${fila.nombre || ''}" como organizador.`,
+          confirmButtonText: 'Aceptar',
+          confirmButtonColor: '#4A3287'
+        }).then(() => {
+          abrirModal(fila);
+        });
+        return;
       }
-      return null;
+      if (accion === "Detalles") {
+        abrirModal(fila);
+        return;
+      }
+      if (accion === "Retar") {
+        // Mostrar alerta de éxito después de confirmar
+        MySwal.fire({
+          icon: 'success',
+          title: 'Reto enviado',
+          text: `Has retado a "${fila.nombre || ''}".`,
+          confirmButtonText: 'Aceptar',
+          confirmButtonColor: '#4A3287'
+        }).then(() => {
+          ir(fila);
+        });
+        return;
+      }
+      if (accion === "Ver") {
+        ir(fila);
+        return;
+      }
+      if (accion === "Unirse") {
+        // Mostrar alerta de éxito después de confirmar
+        MySwal.fire({
+          icon: 'success',
+          title: 'Solicitud enviada',
+          text: `Ya has solicitado unirte al equipo "${fila.nombre || ''}". Espera respuesta del administrador.`,
+          confirmButtonText: 'Aceptar',
+          confirmButtonColor: '#4A3287'
+        });
+        
+        if (typeof onUnirse === "function") {
+          onUnirse(fila);
+        } else {
+          // fallback a navegación si no hay callback
+          ir(fila);
+        }
+        return;
+      }
+      // Otros casos: fallback a abrir modal
+      abrirModal(fila);
     });
-  };
+  }, [MySwal, abrirModal, ir, onUnirse]);
+
+  const renderAcciones = (fila) => {
+
+  return acciones.map((a, index) => {
+    console.log("Si deberia de tener acciones")
+    //Funcionalidad de ASIGNAR PENDIENTE
+    if (a.accion === "Asignar") {
+      return (
+        <button
+          key={index}
+          className="btn-accion me-1"
+          onClick={(e) => handleAccionClick(a, fila, e)}
+        >
+          <i className={a.icon}></i>
+        </button>
+      );
+    }
+    //PENDIENTEEE
+
+    // Detalles: abrir modal directamente (sin SweetAlert)
+    if (a.accion === "Detalles") {
+      return (
+        <button
+          key={index}
+          className="btn-accion me-1"
+          onClick={(e) => {
+            e.stopPropagation();
+            abrirModal(fila);
+          }}
+        >
+          <i className={a.icon}></i>
+        </button>
+      );
+    }
+
+    if (a.accion === "Ver") {
+      return (
+        <button
+          key={index}
+          className="btn-accion me-1"
+          onClick={(e) => handleAccionClick(a, fila, e)}
+        >
+          <i className={a.icon}></i>
+        </button>
+      );
+    }
+
+    if (a.accion === "Retar") {
+      return (
+        <button
+          key={index}
+          className="btn-accion me-1"
+          onClick={(e) => handleAccionClick(a, fila, e)}
+        >
+          <i className={a.icon}></i>
+        </button>
+      );
+    }
+
+    if (a.accion === "Unirse") {
+      return (
+        <button
+          key={index}
+          className="btn-accion me-1"
+          onClick={(e) => handleAccionClick(a, fila, e)}
+        >
+          <i className={a.icon}></i>
+        </button>
+      );
+    }
+
+    return null;
+  });
+};
 
   const Row = React.memo(function Row({ fila }) {
     return (
@@ -151,8 +284,8 @@ export default function TablaCard({ encabezados = [], datos = [], acciones = [] 
         <div className="encabezados">
           {encabezados.includes("Imagen") }
           {encabezados.map((col, i) => (
-            <div key={i} className="encabezado-item">
-              {col}
+            <div key={i} className="encabezado-item" style={{color:"white", textWrap : 'wrap'}}>
+              {col} 
             </div>
           ))}
         </div>

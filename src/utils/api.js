@@ -1,7 +1,7 @@
 // Utilidad simple para conectar con el backend usando fetch.
 // Usa rutas relativas (/api/...) para aprovechar el proxy de Vite en desarrollo.
 const API = {
-  baseUrl: import.meta.env.VITE_API_URL || '', // si está vacía usará rutas relativas
+  baseUrl: "http://localhost:8080", // URL de tu back-end // si está vacía usará rutas relativas
 
   async request(path, options = {}) {
     const headers = options.headers || {};

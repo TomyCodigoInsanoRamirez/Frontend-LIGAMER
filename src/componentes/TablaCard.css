@@ -367,9 +367,8 @@
 .valor-col {
   padding: 0.25rem;
   text-align: center;
-  white-space: nowrap;
+  /*white-space: wrap;*/
   overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .imagen-col {
@@ -455,4 +454,44 @@
 /* Modal */
 .modal-backdrop {
   background-color: rgba(0, 0, 0, 0.7) !important;
+}
+
+/* Estilos globales para todos los modales */
+.modal-footer {
+  background-color: #00A6A6 !important;
+  border-top: none !important;
+  padding: 1rem !important;
+}
+
+.modal-footer .btn {
+  background-color: #00C4C4 !important;
+  border-color: #00C4C4 !important;
+  color: white !important;
+}
+
+.modal-footer .btn:hover {
+  background-color: #00B3B3 !important;
+  border-color: #00B3B3 !important;
+}
+
+.modal-footer .btn-secondary {
+  background-color: #00C4C4 !important;
+  border-color: #00C4C4 !important;
+  color: white !important;
+}
+
+.modal-footer .btn-secondary:hover {
+  background-color: #00B3B3 !important;
+  border-color: #00B3B3 !important;
+}
+
+.modal-footer .btn-primary {
+  background-color: #00C4C4 !important;
+  border-color: #00C4C4 !important;
+  color: white !important;
+}
+
+.modal-footer .btn-primary:hover {
+  background-color: #00B3B3 !important;
+  border-color: #00B3B3 !important;
 }
