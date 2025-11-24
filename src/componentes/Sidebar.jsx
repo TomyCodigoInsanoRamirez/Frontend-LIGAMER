@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 
 export default function Sidebar({ menuItems = [] }) {
   const { user, logout } = useAuth();
+  console.log('Rendering Sidebar for user:', user);
 
   const iconMap = {
     admin: 'bi-person-fill',
@@ -39,7 +40,7 @@ export default function Sidebar({ menuItems = [] }) {
               {user ? `Usuario: ${user.username || user?.username || ''}` : ''}
             </span> */}
             <Link to="/perfil" className="btn btn-outline-light btn-sm" style={{margin:5}}>
-              <span className="navbar-text me-3" style={{ color: '#fff' }}> {user ? `Perfil ${user.username || user?.username || 'Finny_231'}` : 'Perfil Finny_231'} </span>
+              <span className="navbar-text me-3" style={{ color: '#fff' }}> {user.role ? ` ${user.role || user?.user || 'Finny_231'}` : 'Perfil Finny_231'} </span>
             </Link>
             <button className="btn btn-outline-light btn-sm" onClick={logout}>Cerrar sesión</button>
           </div>
