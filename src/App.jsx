@@ -81,7 +81,6 @@ export default function App() {
   const datosTorneo = {
     tournamentName: "Liga Interempresas 2025",
     numTeams: 16
-    // No se necesitan más datos del formulario
   };
 
   const userData = {
@@ -134,10 +133,14 @@ export default function App() {
 
           <Route path="/elegir-equipo" element={<ProtectedRoute><RoleRoute allowedRoles={['user',]}><UserDashboard /></RoleRoute></ProtectedRoute>} />
           <Route path="/miEquipo" element={<ProtectedRoute><RoleRoute allowedRoles={['user']}><DashboardLayoutUserGraficas /></RoleRoute></ProtectedRoute>} />
-          <Route path="/crearTorneo" element={<ProtectedRoute><RoleRoute allowedRoles={['manager']}><CrearTorneo estado="Nuevo"/></RoleRoute></ProtectedRoute>} />
-          <Route path="/TorneoEnCurso" element={<ProtectedRoute><RoleRoute allowedRoles={['manager']}><CrearTorneo estado="En curso" datosGuardados={datosTorneo} equipos={equiposInscritos} /></RoleRoute></ProtectedRoute>} />
-          <Route path="/TorneoGuardado" element={<ProtectedRoute><RoleRoute allowedRoles={['manager']}><CrearTorneo estado="Guardado"datosGuardados={datosTorneo} /></RoleRoute></ProtectedRoute>} />
+          {/* <Route path="/crearTorneo" element={<ProtectedRoute><RoleRoute allowedRoles={['manager']}><CrearTorneo estado="Nuevo"/></RoleRoute></ProtectedRoute>} />
+          <Route path="/TorneoEnCurso/:id" element={<ProtectedRoute><RoleRoute allowedRoles={['manager']}><CrearTorneo estado="En curso" datosGuardados={datosTorneo} equipos={equiposInscritos} /></RoleRoute></ProtectedRoute>} />
+          <Route path="/TorneoGuardado/:id" element={<ProtectedRoute><RoleRoute allowedRoles={['manager']}><CrearTorneo estado="Guardado"datosGuardados={datosTorneo} /></RoleRoute></ProtectedRoute>} /> */}
+          <Route path="/crearTorneo" element={<ProtectedRoute><RoleRoute allowedRoles={['manager']}><CrearTorneo estado="Nuevo" /></RoleRoute></ProtectedRoute>} />
 
+          <Route path="/TorneoGuardado/:id" element={<ProtectedRoute><RoleRoute allowedRoles={['manager']}><CrearTorneo estado="Guardado" /></RoleRoute></ProtectedRoute>} />
+
+          <Route path="/TorneoEnCurso/:id" element={<ProtectedRoute><RoleRoute allowedRoles={['manager', 'user']}><CrearTorneo estado="En curso" /></RoleRoute></ProtectedRoute>} />
 
 
           <Route path="/forbidden" element={<Forbidden />} /> 

@@ -2,11 +2,11 @@ import React from 'react';
 import { RadarChart } from '@mui/x-charts/RadarChart';
 
 export default function RadarChartGamers() {
-  const dataset = [
-    { metric: 'Kills', alpha: 90, beta: 70, gamma: 50 },
-    { metric: 'Deaths', alpha: 20, beta: 40, gamma: 60 },
-    { metric: 'Assists', alpha: 60, beta: 50, gamma: 70 },
-  ];
+  // const dataset = [
+  //   { metric: 'Kills', alpha: 90, beta: 70, gamma: 50 },
+  //   { metric: 'Deaths', alpha: 20, beta: 40, gamma: 60 },
+  //   { metric: 'Assists', alpha: 60, beta: 50, gamma: 70 },
+  // ];
 
   return (
     <div className="chart-container" style={{ color: '#fff' }}>
