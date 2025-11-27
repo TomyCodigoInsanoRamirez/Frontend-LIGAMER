@@ -5,6 +5,7 @@ import withReactContent from "sweetalert2-react-content";
 import './Perfil.css';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { getProfile } from '../utils/Service/General';
 
 const MySwal = withReactContent(Swal);
 
@@ -19,9 +20,9 @@ export default function PerfilUsuario({ userData, onUpdate }) {
     email: userData.email || '',
     username: userData.username || '',
   });
-
   const [interests, setInterests] = useState(userData.intereses || []);
   const [newGameName, setNewGameName] = useState('');
+  const [informacionUsuario, setInformacionUsuario] = useState(null);
 
   // Sincronizar con props
   useEffect(() => {
@@ -96,6 +97,15 @@ export default function PerfilUsuario({ userData, onUpdate }) {
     
   };
 
+  useEffect(() => {
+  getProfile()
+    .then((data) => {
+      setInformacionUsuario(data);
+      console.log("Información del usuario obtenida en Perfil.jsx:", informacionUsuario);
+    })
+    .catch((err) => console.log(err));
+}, []);
+
   const handleSavePersonal = () => {
     MySwal.fire({
       title: '¿Confirmar cambios?',
@@ -169,7 +179,7 @@ export default function PerfilUsuario({ userData, onUpdate }) {
                 </div>
                 <div className="section-body">
                   <p><strong>Nombre:</strong> {personalData.nombre || 'No definido'}</p>
-                  <p><strong>Correo:</strong> {personalData.email}</p>
+                  <p><strong>Correo:</strong> {informacionUsuario?.email}</p>
                   <p><strong>Usuario:</strong> {personalData.username}</p>
                 </div>
               </div>
