@@ -4,6 +4,9 @@ import './CrearCuenta.css';
 import "bootstrap-icons/font/bootstrap-icons.css";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
+import { registerUser } from '../utils/Service/General';
+import { appBarClasses } from '@mui/material';
+
 
 const MySwal = withReactContent(Swal);
 
@@ -12,9 +15,9 @@ export default function CrearCuenta() {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [form, setForm] = useState({
-    nombres: '',
-    apellidoP: '',
-    apellidoM: '',
+    nombre: '',
+    apellidoPaterno: '',
+    apellidoMaterno: '',
     username: '',
     email: '',
     password: '',
@@ -27,8 +30,21 @@ export default function CrearCuenta() {
     navigate('/login');
   };
 
+ 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    //Validacion de contraseñas
+    if (form.password !== form.confirm) {
+      return MySwal.fire({
+        icon: 'error',
+        title: 'Contraseñas no coinciden',
+        text: 'Por favor, verifica que las contraseñas ingresadas sean iguales.',
+        confirmButtonColor: '#4A3287',
+      });
+    }
+
+     //Confirmacion de registro
     const result = await MySwal.fire({
       title: 'Confirmar registro',
       text: '¿Deseas crear la cuenta con los datos ingresados?',
@@ -41,11 +57,26 @@ export default function CrearCuenta() {
       reverseButtons: true
     });
 
-    if (!result.isConfirmed) {
-      return;
-    }
+    if (!result.isConfirmed) {return;}
 
-    console.log('Registrando usuario:', form);
+    //Aramar el objeto con los datos del formulario
+    try{
+      const userData ={
+        nombre: form.nombre,
+        apellidoPaterno: form.apellidoPaterno,
+        apellidoMaterno: form.apellidoMaterno,
+        username: form.username,
+        email: form.email,
+        password: form.password,
+        confirmPassword: form.confirm
+      };
+    
+    console.log('Registrando usuario:', userData);
+    
+    //Aqui conectamos backend
+    const response = await registerUser(userData);
+    console.log('Respuesta del registro:', response);
+
     await MySwal.fire({
       icon: 'success',
       title: '¡Bienvenido!',
@@ -54,7 +85,16 @@ export default function CrearCuenta() {
       confirmButtonColor: '#4A3287'
     });
     navigate('/login');
-  };
+  }catch (error) {
+    console.error('Error durante el registro:', error);
+    await MySwal.fire({
+      icon: 'error',
+      title: 'Error en el registro',
+      text: error.response?.data?.message || 'Ha ocurrido un error al crear la cuenta. Por favor, intenta nuevamente.',
+      confirmButtonColor: '#4A3287'
+    });
+  }
+};
 
   return (
     <div className="container-fluid d-flex align-items-center justify-content-center" style={{ minHeight: '100vh' }}>
@@ -67,17 +107,17 @@ export default function CrearCuenta() {
                 <form onSubmit={handleSubmit}>
                   <div className="mb-3">
                     <label className="form-label text-light">Nombres:</label>
-                    <input name="nombres" value={form.nombres} onChange={handleChange} className="form-control" placeholder="Ingresa tu(s) nombre(s)" />
+                    <input name="nombre" value={form.nombre} onChange={handleChange} className="form-control" placeholder="Ingresa tu(s) nombre(s)" />
                   </div>
 
                   <div className="mb-3 d-flex gap-2">
                     <div className="flex-fill">
                       <label className="form-label text-light">Apellidos:</label>
-                      <input name="apellidoP" value={form.apellidoP} onChange={handleChange} className="form-control" placeholder="Paterno" />
+                      <input name="apellidoPaterno" value={form.apellidoPaterno} onChange={handleChange} className="form-control" placeholder="Paterno" />
                     </div>
                     <div className="flex-fill">
                       <label className="form-label text-light">&nbsp;</label>
-                      <input name="apellidoM" value={form.apellidoM} onChange={handleChange} className="form-control" placeholder="Materno" />
+                      <input name="apellidoMaterno" value={form.apellidoMaterno} onChange={handleChange} className="form-control" placeholder="Materno" />
                     </div>
                   </div>
 

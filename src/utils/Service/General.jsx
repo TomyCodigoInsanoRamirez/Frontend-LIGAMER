@@ -38,3 +38,15 @@ export async function getProfile() {
     throw error;
   }
 }
+//--------------------------------------------
+//Endpoitn: /api/auth/register
+//--------------------------------------------
+export async function registerUser(userData){
+  try {
+    const response = await api.post("/api/auth/register", userData);
+    return response.data;
+  } catch (error) {
+    console.error("Error registrando el usuario:", error);
+    throw error;
+  }
+}
