@@ -62,6 +62,18 @@ export async function resetPassword(email){
     throw error;
   }
 }
+//---------------------------------------------
+//Endopint: /api/profile/change-password
+//---------------------------------------------
+export async function changePassword(data){
+  try {
+    const response = await api.put("/api/profile/change-password", data);
+    return response.data;
+  } catch (error) {
+    console.error("Error cambiando la contraseña:", error);
+    throw error;
+  }
+}
 
 
 

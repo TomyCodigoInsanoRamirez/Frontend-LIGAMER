@@ -6,6 +6,7 @@ import './Perfil.css';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate } from 'react-router-dom';
 import { getProfile } from '../utils/Service/General';
+import { changePassword } from '../utils/Service/General';
 
 const MySwal = withReactContent(Swal);
 
@@ -15,6 +16,10 @@ export default function PerfilUsuario({ userData, onUpdate }) {
   const [showAddGameModal, setShowAddGameModal] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
+  const [editingPassword, setEditingPassword] = useState(false);
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const [personalData, setPersonalData] = useState({
     nombre: userData.nombre || '',
     email: userData.email || '',
@@ -101,10 +106,13 @@ export default function PerfilUsuario({ userData, onUpdate }) {
   getProfile()
     .then((data) => {
       setInformacionUsuario(data);
-      console.log("Información del usuario obtenida en Perfil.jsx:", informacionUsuario);
     })
     .catch((err) => console.log(err));
 }, []);
+
+useEffect(() => {
+  console.log("Información del usuario actualizada en Perfil.jsx:", informacionUsuario);
+}, [informacionUsuario]);
 
   const handleSavePersonal = () => {
     MySwal.fire({
@@ -156,6 +164,69 @@ export default function PerfilUsuario({ userData, onUpdate }) {
     });
   };
 
+  const handleSavePassword = async () => {
+    if(!oldPassword || !newPassword || !confirmNewPassword){
+      MySwal.fire({
+        icon: 'warning',
+        title: 'Campos incompletos',
+        text: 'Por favor, completa todos los campos.',
+        confirmButtonColor: '#4A3287'
+      });
+      return;
+    }
+
+    if(newPassword !== confirmNewPassword){
+      MySwal.fire({
+        icon: 'error',
+        title: 'Contraseñas no coinciden',
+        text: 'La nueva contraseña y su confirmación no son iguales.',
+        confirmButtonColor: '#4A3287'
+      });
+      return;
+    }
+
+    const result = await MySwal.fire({
+      title: '¿Guardar nueva contraseña?',
+      text: 'Tu contraseña será actualizada.',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonText: 'Sí, guardar',
+      cancelButtonText: 'Cancelar',
+      confirmButtonColor: '#4A3287',
+      cancelButtonColor: '#dc3545',
+      reverseButtons: true
+    });
+
+      if (result.isConfirmed) {
+        try{
+          await changePassword({
+          currentPassword: oldPassword,
+          newPassword: newPassword
+      });
+
+          MySwal.fire({
+          icon: 'success',
+          title: '¡Contraseña actualizada!',
+          confirmButtonColor: '#4A3287'
+
+        });
+        // limpiar campos
+        setOldPassword("");
+        setNewPassword("");
+        setConfirmNewPassword("");
+        setEditingPassword(false);
+
+    } catch (error) {
+    MySwal.fire({
+      icon: "error",
+      title: "Error al actualizar contraseña",
+      text: error?.response?.data?.message || "Ocurrió un error",
+      confirmButtonColor: "#4A3287",
+      });
+    }
+  }
+};
+
   return (
     <div className="perfil-page-wrapper">
       <div className="stars-wrapper"></div>
@@ -188,7 +259,7 @@ export default function PerfilUsuario({ userData, onUpdate }) {
               <div className="section-card mb-3">
                 <div className="section-header">
                   <h5>Contraseña</h5>
-                  <Button size="sm" className="btn-edit">Editar</Button>
+                  <Button size="sm" className="btn-edit" onClick={()=> setEditingPassword(true)}>Editar</Button>
                 </div>
                 <div className="section-body">
                   <p>********</p>
@@ -262,6 +333,8 @@ export default function PerfilUsuario({ userData, onUpdate }) {
 
         <div className="bottom-spacer"></div>
       </div>
+
+
 
       {/* Modal: Editar datos personales */}
       <Modal show={editingPersonal} onHide={() => setEditingPersonal(false)} centered>
@@ -355,6 +428,67 @@ export default function PerfilUsuario({ userData, onUpdate }) {
           </Button>
         </Modal.Footer>
       </Modal>
+
+            {/* Modal: Editar contraseña */}
+      <Modal show={editingPassword} onHide={() => setEditingPassword(false)} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Cambiar contraseña</Modal.Title>
+            </Modal.Header>
+
+  <Modal.Body>
+    <Form>
+      <Form.Group className="mb-3">
+        <Form.Label>Contraseña actual:</Form.Label>
+        <Form.Control
+          type="password"
+          value={oldPassword}
+          onChange={(e) =>
+            setOldPassword(e.target.value)
+          }
+          placeholder="Escribe tu contraseña actual"
+        />
+      </Form.Group>
+
+      <Form.Group className="mb-3">
+        <Form.Label>Nueva contraseña:</Form.Label>
+        <Form.Control
+          type="password"
+          value={newPassword}
+          onChange={(e) =>
+            setNewPassword(e.target.value)
+          }
+          placeholder="Escribe la nueva contraseña"
+        />
+      </Form.Group>
+
+      <Form.Group className="mb-3">
+        <Form.Label>Confirmar nueva contraseña:</Form.Label>
+        <Form.Control
+          type="password"
+          value={confirmNewPassword}
+          onChange={(e) =>
+            setConfirmNewPassword(e.target.value)
+          }
+          placeholder="Confirma la nueva contraseña"
+        />
+      </Form.Group>
+    </Form>
+  </Modal.Body>
+
+    <Modal.Footer>
+    <Button variant="danger" onClick={() => setEditingPassword(false)}>
+      Cancelar
+    </Button>
+    <Button
+      style={{ backgroundColor: "#4A3287", border: "none" }}
+      onClick={handleSavePassword}
+    >
+      Guardar
+    </Button>
+  </Modal.Footer>
+</Modal>
+
+
     </div>
   );
 }
