@@ -3,6 +3,8 @@ import { useNavigate, Link } from "react-router-dom";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import "bootstrap-icons/font/bootstrap-icons.css";
+import { resetPassword } from "../utils/Service/General";
+
 //import "./Login.css"; // reuse styles; ajusta si necesitas otra hoja
 import "./../componentes/CrearCuenta.css"; // reutilizar estilos de CrearCuenta para consistencia
 const MySwal = withReactContent(Swal);
@@ -13,6 +15,16 @@ export default function ResetPassword() {
 
   const handleEnviar = async (e) => {
     e.preventDefault();
+
+    if(!email){
+      return MySwal.fire({
+        icon: "error",
+        title: "Correo requerido",
+        text: "Por favor, ingresa tu correo electrónico.",
+      });
+    }
+
+    //confirmación
     const result = await MySwal.fire({
       title: "¿Enviar enlace de restablecimiento?",
       text: `Se enviará un enlace al correo proporcionado.`,
@@ -27,7 +39,11 @@ export default function ResetPassword() {
 
     if (!result.isConfirmed) return;
 
-    // Aquí iría la llamada a la API para enviar el correo.
+    try {
+      const res = await resetPassword(email);
+
+      console.log("Respuesta del servidor",res);
+
     // Simulación / feedback:
     await MySwal.fire({
       icon: "success",
@@ -37,9 +53,17 @@ export default function ResetPassword() {
       confirmButtonColor: "#4A3287"
     });
 
-    // Volver al login tras enviar (opcional)
     navigate("/login", { replace: true });
-  };
+
+    } catch (error) {
+      console.log("Error al enviar el enlace:", error);
+      await MySwal.fire({
+        icon: "error",
+        title: "Error",
+        text: error?.reponse?.data?.message || "Ocurrió un error al intentar enviar el enlace. Por favor, intenta nuevamente más tarde.",
+    });
+  }
+};
 
   const handleCancelar = (e) => {
     e.preventDefault();

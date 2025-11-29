@@ -50,3 +50,30 @@ export async function registerUser(userData){
     throw error;
   }
 }
+//--------------------------------------------
+// Endopint: /api/auth/forgot-password
+//--------------------------------------------
+export async function resetPassword(email){
+  try {
+    const response = await api.post("/api/auth/forgot-password", { email });
+    return response.data;
+  } catch (error) {
+    console.error("Error reseteando la contraseña:", error);
+    throw error;
+  }
+}
+
+
+
+//--------------------------------------------
+//Endopoint: /api/admin/users
+//--------------------------------------------
+export async function getAllUsers(){
+  try {
+    const response = await api.get("/api/admin/users");
+    return response.data;
+  } catch (error) {
+    console.error("Error obteniendo los usuarios:", error);
+    throw error;
+  }
+}
