@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import {requestToJoinTeam} from '../utils/Service/usuario';
+import {assignOrganizerRole} from '../utils/Service/administrador';
 
 export default function TablaCard({ encabezados = [], datos = [], acciones = [], onUnirse }) {
   const [paginaActual, setPaginaActual] = useState(1);
@@ -112,7 +113,14 @@ export default function TablaCard({ encabezados = [], datos = [], acciones = [],
           confirmButtonText: 'Aceptar',
           confirmButtonColor: '#4A3287'
         }).then(() => {
-          abrirModal(fila);
+         // abrirModal(fila);
+          try {
+            assignOrganizerRole(fila.id)
+              .then((data) => { console.log("Respuesta asignar organizador:", data); })
+              .catch((err) => { console.error("Error asignar organizador:", err); });
+          } catch (error) {
+            console.error("Error asignando organizador:", error);
+          }
         });
         return;
       }

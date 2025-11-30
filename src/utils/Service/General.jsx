@@ -83,6 +83,7 @@ export async function changePassword(data){
 export async function getAllUsers(){
   try {
     const response = await api.get("/api/admin/users");
+    console.log("Usuarios obtenidos:", response.data);
     return response.data;
   } catch (error) {
     console.error("Error obteniendo los usuarios:", error);

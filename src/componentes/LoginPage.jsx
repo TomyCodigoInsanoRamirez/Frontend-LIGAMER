@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import "bootstrap-icons/font/bootstrap-icons.css"; 
@@ -12,26 +12,30 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(null);
-  const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || null;
+  const hasRedirected = useRef(false);
 
-  const { user } = useAuth();
+  const { user, login, loading } = useAuth();
 
   useEffect(() => {
     // Si el usuario ya está autenticado y llega a /login (por ejemplo con el botón "atrás"),
     // redirigirlo automáticamente a su inicio según el rol.
-    if (!user) return;
+    if(loading) return; // Esperar a que se cargue el estado de autenticación
+    if (!user || hasRedirected.current) return;
+    
+    hasRedirected.current = true;
     const roleMap = {
       'ROLE_JUGADOR': '/user',
       'ROLE_ORGANIZADOR': '/manager',
       'ROLE_ADMINISTRADOR': '/admin'
     };
-    const dest = roleMap[user.role] || '/';
-    // Reemplazamos la entrada actual del historial para que "atrás" no vuelva a /login inmediatamente.
-    navigate(dest, { replace: true });
-  }, [user, navigate]);
+    const targetRoute = roleMap[user.role] || '/';
+    navigate(targetRoute, { replace: true });
+  }, [loading, user]);
+  
+  if (loading) return null; // o un spinner
 
   const handleSubmit = async (e) => {
     e.preventDefault();

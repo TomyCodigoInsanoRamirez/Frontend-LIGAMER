@@ -2,13 +2,20 @@ import React from "react";
 import './DashboardLayout.css';
 import Sidebar from "./Sidebar";
 import TablaCard from "./TablaCard";
+import { getAllUsers } from "../utils/Service/General";
+import { useEffect, useState } from "react";
 
 export default function DashboardLayout({ title, children }) {
   const menuItems = [
-    { id: 1, ruta: 'perfil', label: 'Perfil', icon: 'bi-person-fill' },
-    { id: 2, ruta: 'admin', label: 'Asignar Organizador', icon: 'bi-person-fill-up' },
+    { id: 1, ruta: 'admin', label: 'Asignar Organizador', icon: 'bi-person-fill-up' },
   ];
-  const encabezados = ["Imagen", "Nombre", "Correo", "Rol", "Estado", "Fecha", "Acciones"];
+   const encabezados = [
+    { key: "nombre",         label: "Nombre" },
+    { key: "email",    label: "Correo" },
+    { key: "role",       label: "Rol" },
+    { key: "teamName", label: "Equipo" },
+    { key: "Acciones",       label: "Acciones" }
+  ];
   const datos = [
     { id: 1, imagen: "https://i.pravatar.cc/80?img=1", nombre: "Juan", correo: "juan@x.com", rol: "Admin", estado: "Activo", fecha: "2025-10-26" },
     { id: 2, imagen: "https://i.pravatar.cc/80?img=1", nombre: "Juan", correo: "juan@x.com", rol: "Admin", estado: "Activo", fecha: "2025-10-26" },
@@ -24,9 +31,28 @@ export default function DashboardLayout({ title, children }) {
     
 
   ];
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+    async function fetchUsers() {
+      try {
+        const usersData = await getAllUsers();
+        setUsers(usersData);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      }
+    }
+
+    fetchUsers();
+  }, []);
+
+  useEffect(() => {
+    console.log("Usuarios en estado:", users);
+  }, [users]);
+
   const acciones = [
     { accion: "Asignar", icon: "bi-person-plus-fill"},
-    { accion: "Ver", icon: "bi-eye-fill" },
+    { accion: "Detalles", icon: "bi-eye-fill" },
   ];
   return (
     <div className="dashboard-layout">
@@ -37,7 +63,7 @@ export default function DashboardLayout({ title, children }) {
           <div className="col-12">
             <TablaCard
               encabezados={encabezados}
-              datos={datos}
+              datos={users}
               acciones={acciones}
             />
           </div>
