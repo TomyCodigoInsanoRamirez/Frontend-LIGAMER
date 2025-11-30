@@ -58,10 +58,10 @@ export default function TablaCard({ encabezados = [], datos = [], acciones = [],
 
   const ir = useCallback((fila) => {
     if (fila.estado === "En curso") {
-      navigate("/TorneoEnCurso/123", { replace: true, state: { from: fila } });
+      navigate(`/TorneoEnCurso/${fila.id}`, { replace: true, state: { from: fila } });
       return;
     } else if (fila.estado === "Guardado") {
-      navigate(`/TorneoGuardado/${fila.id}`, { replace: true, state: { from: fila } });
+      navigate(`/TorneoGuardado/${fila.id}`, { replace: true, state: { from: fila } }); 
       return;
     }
   }, [navigate]);

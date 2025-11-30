@@ -6,6 +6,10 @@ import { Modal, Button, Form, InputGroup, ListGroup, Spinner, Alert } from 'reac
 import { useAuth } from '../context/AuthContext';
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
+import {getTournamentById} from './../utils/Service/manager';
+import {saveTournament} from './../utils/Service/manager';
+import {updateTournament} from './../utils/Service/manager';
+
 
 const MySwal = withReactContent(Swal);
 
@@ -13,6 +17,7 @@ export default function CrearTorneo({ estado = "Nuevo" }) {
   const { id } = useParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+
 
   const [tournamentName, setTournamentName] = useState('');
   const [description, setDescription] = useState('');
@@ -51,6 +56,7 @@ export default function CrearTorneo({ estado = "Nuevo" }) {
   const prevGraphRef = useRef();
   const hasGenerated = useRef(false);
   const mappedDatesRef = useRef(false);
+  const [data, setData] = useState({});
 
   // Genera un objeto matchDates con TODAS las claves posibles y valor vacío
 const generateEmptyMatchDates = () => {
@@ -60,6 +66,7 @@ const generateEmptyMatchDates = () => {
   });
   return empty;
 };
+
 
   // Resetear mapeo de fechas al regenerar o cambiar torneo
   useEffect(() => {
@@ -101,57 +108,82 @@ const generateEmptyMatchDates = () => {
         // const data = await response.json();
 
         // === SIMULACIÓN (reemplazar por el fetch real cuando lo tengas) ===
-        const data = {
-          tournamentName: "Copa Internacional 2025",
-          description: "Los 8 mejores clubes del mundo en eliminación directa",
-          numTeams: 8,
-          startDate: "2025-11-20",
-          endDate: "2025-12-15",
-          registrationCloseDate: "2025-11-18",
-          ruleList: [
-            "Eliminación directa",
-            "En caso de empate: prórroga + penales",
-            "Máximo 5 cambios por partido"
-          ],
-          matchDates: {
-            "node0_topLeaf": "2025-11-23",
-            "node1_topLeaf": "2025-11-23",
-            "node2_topLeaf": "2025-11-24",
-            "node3_topLeaf": "2025-11-24",
-            "node4_top": "2025-11-25",
-            "node5_top": "2025-11-25",
-            "node6_top": "2025-11-26",
-            "node13_bottom": "2025-11-26",
-            "node11_bottom": "2025-11-27",
-            "node12_bottom": "2025-11-27",
-            "node7_bottomLeaf": "2025-11-28",
-            "node8_bottomLeaf": "2025-11-28",
-            "node9_bottomLeaf": "2025-11-29",
-            "node10_bottomLeaf": "2025-11-29"
-          },
-          teams: estado === "En curso" ? [
-            { name: "Real Madrid", image: "https://pbs.twimg.com/profile_images/1638090920951250944/QEPY4cpL_200x200.jpg" },
-            { name: "Barcelona", image: "https://www.shutterstock.com/image-vector/barcelona-fc-cup-icon-logo-600nw-2267672941.jpg" },
-            { name: "Bayern Munich", image: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/FC_Bayern_M%C3%BCnchen_logo_%282024%29.svg/250px-FC_Bayern_M%C3%BCnchen_logo_%28202429.svg.png" },
-            { name: "Manchester City", image: "https://upload.wikimedia.org/wikipedia/en/thumb/e/eb/Manchester_City_FC_badge.svg/1200px-Manchester_City_FC_badge.svg.png" },
-            { name: "River Plate", image: "https://brandemia.org/contenido/subidas/2022/02/000-river-plate-1200x670.jpg" },
-            { name: "Boca Juniors", image: "https://www.sopitas.com/wp-content/uploads/2020/05/boca-juniors-historia-destras-escudo.png" },
-            { name: "Flamengo", image: "https://www.shutterstock.com/image-vector/red-black-emblem-icon-vector-600w-2176171449.jpg" },
-            { name: "Palmeiras", image: "https://cdn.conmebol.com/wp-content/uploads/2015/08/palmeiras-750px.jpg" }
-          ] : [],
-          matches: estado === "En curso" ? {
-            "node4_top": { team1: "Real Madrid", team2: "Barcelona", score1: "3", score2: "1", date: "2025-11-23" },
-            "node5_top": { team1: "Bayern Munich", team2: "Manchester City", score1: "2", score2: "3", date: "2025-11-23" },
-            "node6_top": { team1: "River Plate", team2: "Boca Juniors", score1: "1", score2: "0", date: "2025-11-24" },
-            "node13_bottom": { team1: "Flamengo", team2: "Palmeiras", score1: "4", score2: "2", date: "2025-11-24" },
-            "node14_top": { team1: "Real Madrid", team2: "Bayern Munich", score1: "", score2: "", date: "2025-11-30" },
-            "node15_bottom": { team1: "River Plate", team2: "Flamengo", score1: "2", score2: "1", date: "2025-11-30" }
-          } : {}
-        };
+        // const data = {
+        //   tournamentName: "Copa Internacional 2025",
+        //   description: "Los 8 mejores clubes del mundo en eliminación directa",
+        //   numTeams: 8,
+        //   startDate: "2025-11-20",
+        //   endDate: "2025-12-15",
+        //   registrationCloseDate: "2025-11-18",
+        //   ruleList: [
+        //     "Eliminación directa",
+        //     "En caso de empate: prórroga + penales",
+        //     "Máximo 5 cambios por partido"
+        //   ],
+        //   matchDates: {
+        //     "node0_topLeaf": "2025-11-23",
+        //     "node1_topLeaf": "2025-11-23",
+        //     "node2_topLeaf": "2025-11-24",
+        //     "node3_topLeaf": "2025-11-24",
+        //     "node4_top": "2025-11-25",
+        //     "node5_top": "2025-11-25",
+        //     "node6_top": "2025-11-26",
+        //     "node13_bottom": "2025-11-26",
+        //     "node11_bottom": "2025-11-27",
+        //     "node12_bottom": "2025-11-27",
+        //     "node7_bottomLeaf": "2025-11-28",
+        //     "node8_bottomLeaf": "2025-11-28",
+        //     "node9_bottomLeaf": "2025-11-29",
+        //     "node10_bottomLeaf": "2025-11-29"
+        //   },
+        //   teams: estado === "En curso" ? [
+        //     { name: "Real Madrid", image: "https://pbs.twimg.com/profile_images/1638090920951250944/QEPY4cpL_200x200.jpg" },
+        //     { name: "Barcelona", image: "https://www.shutterstock.com/image-vector/barcelona-fc-cup-icon-logo-600nw-2267672941.jpg" },
+        //     { name: "Bayern Munich", image: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/FC_Bayern_M%C3%BCnchen_logo_%282024%29.svg/250px-FC_Bayern_M%C3%BCnchen_logo_%28202429.svg.png" },
+        //     { name: "Manchester City", image: "https://upload.wikimedia.org/wikipedia/en/thumb/e/eb/Manchester_City_FC_badge.svg/1200px-Manchester_City_FC_badge.svg.png" },
+        //     { name: "River Plate", image: "https://brandemia.org/contenido/subidas/2022/02/000-river-plate-1200x670.jpg" },
+        //     { name: "Boca Juniors", image: "https://www.sopitas.com/wp-content/uploads/2020/05/boca-juniors-historia-destras-escudo.png" },
+        //     { name: "Flamengo", image: "https://www.shutterstock.com/image-vector/red-black-emblem-icon-vector-600w-2176171449.jpg" },
+        //     { name: "Palmeiras", image: "https://cdn.conmebol.com/wp-content/uploads/2015/08/palmeiras-750px.jpg" }
+        //   ] : [],
+        //   matches: estado === "En curso" ? {
+        //     "node4_top": { team1: "Real Madrid", team2: "Barcelona", score1: "3", score2: "1", date: "2025-11-23" },
+        //     "node5_top": { team1: "Bayern Munich", team2: "Manchester City", score1: "2", score2: "3", date: "2025-11-23" },
+        //     "node6_top": { team1: "River Plate", team2: "Boca Juniors", score1: "1", score2: "0", date: "2025-11-24" },
+        //     "node13_bottom": { team1: "Flamengo", team2: "Palmeiras", score1: "4", score2: "2", date: "2025-11-24" },
+        //     "node14_top": { team1: "Real Madrid", team2: "Bayern Munich", score1: "", score2: "", date: "2025-11-30" },
+        //     "node15_bottom": { team1: "River Plate", team2: "Flamengo", score1: "2", score2: "1", date: "2025-11-30" }
+        //   } : {}
+        // };
         // === FIN DE SIMULACIÓN
+        
+        getTournamentById(id)
+          .then((data) => {
+          setData(data.data); 
+          // Cargar datos básicos del torneo
+          setTournamentName(data.data.tournamentName || 'Sin nombre de torneo');
+          setDescription(data.data.description || '');
+          setNumTeams(data.data.numTeams || 8);
+          setStartDate(data.data.startDate || '');
+          setEndDate(data.data.endDate || '');
+          setRegistrationCloseDate(data.data.registrationCloseDate || '');
+          setRuleList(data.data.ruleList || []);
 
+          // Cargar fechas de partidos (pueden estar incompletas)
+          setMatchDates(data.data.matchDates || {});
+
+          // Cargar resultados (solo en "En curso")
+          setMatches(data.data.matches || {});
+
+          // Cargar equipos si existen (solo "En curso")
+          if (data.data.teams && data.data.teams.length > 0) {
+            window.__equiposTemporales = data.data.teams;
+          }
+        })
+          .catch((err) => console.log(err));
+                  
         // Cargar datos básicos del torneo
-        setTournamentName(data.tournamentName || '');
+        setTournamentName(data.tournamentName || 'Sin nombre de torneo');
         setDescription(data.description || '');
         setNumTeams(data.numTeams || 8);
         setStartDate(data.startDate || '');
@@ -202,6 +234,10 @@ const generateEmptyMatchDates = () => {
 
     fetchTorneo();
   }, [id, estado]);
+
+  useEffect(() => {
+    console.log("Respuesta real backend DATA TORNEO", data);
+  }, [data]);
 
   const volver = () => {
     navigate(user.role === "ROLE_ORGANIZADOR" ? '/manager' : '/user');
@@ -402,34 +438,59 @@ useEffect(() => {
   }, [nodes, graph, matchDates, estado]);
 
   // ==================== RELLENAR MODAL AL SELECCIONAR PARTIDO ====================
-  useEffect(() => {
-    if (!selectedNode) return;
+useEffect(() => {
+  if (!selectedNode) return;
 
-    const parentId = graph.childToParent[selectedNode];
-    if (!parentId) {
-      setSelectedNode(null);
-      return;
+  const parentId = graph.childToParent[selectedNode];
+  if (!parentId) {
+    setSelectedNode(null);
+    return;
+  }
+
+  const siblings = graph.parentToChildren[parentId] || [];
+  const rivalId = siblings.find(id => id !== selectedNode);
+
+  // Si por alguna razón no encuentra al rival (raro, pero por seguridad)
+  if (!rivalId) {
+    handleCloseModal();
+    return;
+  }
+
+  // Función para buscar el equipo subiendo por el árbol
+  const findTeamInTree = (nodeId) => {
+    if (teamData[nodeId]) return teamData[nodeId];
+
+    let current = nodeId;
+    while (graph.childToParent[current]) {
+      current = graph.childToParent[current];
+      if (teamData[current]) return teamData[current];
     }
-    const siblings = graph.parentToChildren[parentId] || [];
-    const rivalId = siblings.find(id => id !== selectedNode);
+    return null;
+  };
 
-    setTeam1Input(teamData[selectedNode]?.name || 'por definir');
-    setTeam1Image(teamData[selectedNode]?.image || '');
-    setTeam2Input(teamData[rivalId]?.name || 'por definir');
-    setTeam2Image(teamData[rivalId]?.image || '');
+  const team1 = findTeamInTree(selectedNode);
+  const team2 = findTeamInTree(rivalId); // ← Aquí estaba el error: "rival" → "rivalId"
 
-    const match = matches[parentId];
-    if (match) {
-      const isTeam1 = match.team1 === teamData[selectedNode]?.name;
-      setScore1Input(isTeam1 ? match.score1 || '' : match.score2 || '');
-      setScore2Input(isTeam1 ? match.score2 || '' : match.score1 || '');
-      setDateInput(match.date || resolveMatchDate(selectedNode) || '');
-    } else {
-      setScore1Input('');
-      setScore2Input('');
-      setDateInput(resolveMatchDate(selectedNode) || '');
-    }
-  }, [selectedNode, graph, teamData, matches, matchDates]);
+  setTeam1Input(team1?.name || 'por definir');
+  setTeam1Image(team1?.image || 'https://upload.wikimedia.org/wikipedia/commons/7/7c/Fortnite_F_lettermark_logo.png');
+
+  setTeam2Input(team2?.name || 'por definir');
+  setTeam2Image(team2?.image || 'https://images.steamusercontent.com/ugc/2012596709485058287/7DAE5A8599A6A4EA24F8F41DB7C82C17B1F126A5/?imw=512&&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=false');
+
+  // Marcadores y fecha
+  const match = matches[parentId];
+  if (match) {
+    // Determinamos cuál es el equipo 1 según lo que guardamos
+    const isTeam1Current = match.team1 === team1?.name;
+    setScore1Input(isTeam1Current ? match.score1 || '' : match.score2 || '');
+    setScore2Input(isTeam1Current ? match.score2 || '' : match.score1 || '');
+    setDateInput(match.date || resolveMatchDate(selectedNode) || '');
+  } else {
+    setScore1Input('');
+    setScore2Input('');
+    setDateInput(resolveMatchDate(selectedNode) || '');
+  }
+}, [selectedNode, graph, teamData, matches, matchDates]);
 
   const handleCloseModal = () => {
     setSelectedNode(null);
@@ -496,7 +557,53 @@ useEffect(() => {
 };
 
   // ==================== BOTONES PRINCIPALES ====================
-  const handleGuardar = () => {
+  const handleGuardar = async () => {
+  const torneoData = {
+    tournamentName,
+    description,
+    numTeams,
+    startDate,
+    endDate,
+    registrationCloseDate,
+    ruleList: [...ruleList],
+    matchDates: { ...matchDates },
+    estado: "Guardado",
+    generadoEl: new Date().toISOString(),
+  };
+
+  try {
+    const response = await saveTournament(torneoData); // ← async/await
+
+    console.clear();
+    console.log("%cBORRADOR GUARDADO", "color: #4A3287; font-size: 20px; font-weight: bold;");
+    console.log("Respuesta del servidor:", response);
+
+    MySwal.fire({
+      icon: 'success',
+      title: '¡Borrador guardado con éxito!',
+      toast: true,
+      position: 'top-end',
+      timer: 3000,
+      showConfirmButton: false
+    });
+
+  } catch (error) {
+    console.error("Error al guardar el torneo:", error);
+
+    MySwal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: error.response?.data?.message || 'No se pudo guardar el borrador',
+      toast: true,
+      position: 'top-end',
+    });
+  }
+  if(estado!=="En curso"){
+    volver();
+  }
+};
+
+  const handleActualizar = async () => {
     const torneoData = {
       tournamentName,
       description,
@@ -510,19 +617,38 @@ useEffect(() => {
       generadoEl: new Date().toISOString(),
     };
 
+    try {
+    const response = await updateTournament(id,torneoData); // ← async/await
+
     console.clear();
-    console.log("%cBORRADOR GUARDADO", "color: #4A3287; font-size: 20px; font-weight: bold;");
-    console.log(torneoData);
+    console.log("SE ACTUALIZOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO", "color: #4A3287; font-size: 20px; font-weight: bold;");
+    console.log("Respuesta del servidor:", response);
+    console.log("Esto se mando a actualizr:", torneoData);
 
     MySwal.fire({
       icon: 'success',
-      title: 'Borrador guardado',
+      title: '¡Borrador guardado con éxito!',
       toast: true,
       position: 'top-end',
-      timer: 2500,
+      timer: 3000,
       showConfirmButton: false
     });
-  };
+    if(estado!=="En curso"){
+    volver();
+  }
+
+  } catch (error) {
+    console.error("Error al guardar el torneo:", error);
+
+    MySwal.fire({
+      icon: 'error',
+      title: 'Error',
+      text: error.response?.data?.message || 'No se pudo guardar el borrador',
+      toast: true,
+      position: 'top-end',
+    });
+  }
+  }
 
   const handleCrearTorneo = () => {
     const torneoData = {
@@ -632,6 +758,7 @@ useEffect(() => {
     const getFill = (d) => {
       const team = teamData[d.id];
       if (team?.image) return `url(#pattern-${d.id})`;
+      // if (!(team.image)) return `https://upload.wikimedia.org/wikipedia/commons/7/7c/Fortnite_F_lettermark_logo.png`;
       if (resolveMatchDate(d.id)) return '#020722';
       if (!team?.name) return '#00A6A6';
       const parentId = graph.childToParent[d.id];
@@ -759,9 +886,16 @@ const handleNumTeamsChange = (newValue) => {
         <Button className='btnn generar'  onClick={() => { setGenerateTrigger(prev => prev + 1); setShowConfigModal(false); }} >
           Generar Bracket
         </Button>
-        <Button className='btnn guardar'   onClick={handleGuardar} >
-          Guardar como borrador
-        </Button>
+        {data.estado == 'Guardado' && (
+          <Button className='btnn guardar' onClick={handleActualizar}>
+            Guardar como borrador
+          </Button>
+        )}
+        {estado == 'Nuevo' && (
+          <Button className='btnn guardar' onClick={handleGuardar}>
+            Guardar como borrador Nuevo
+          </Button>
+        )}
       </div>
 
       <div className="d-flex justify-content-center mt-2">

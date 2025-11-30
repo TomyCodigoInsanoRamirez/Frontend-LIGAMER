@@ -25,3 +25,46 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// -----------------------------------------
+// Endpoint: /api/tournaments/{tournametId}
+// -----------------------------------------
+
+export async function getTournamentById(id){
+  try {
+    const response = await api.get(`/api/tournaments/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error obteniendo el torneo por ID:", error);
+    throw error;
+  }
+}
+
+//--------------------------------------------
+//Endpoitn: /api/tournaments
+//--------------------------------------------
+export async function saveTournament(torneGuardar){
+  try {
+    const response = await api.post("/api/tournaments",torneGuardar);
+    return response.data;
+  } catch (error) {
+    console.error("Error guardando el torneo:", error);
+    throw error;
+  } 
+}
+
+//--------------------------------------------
+//Endpoitn: /api/tournaments/:tournamentId
+//--------------------------------------------
+export async function updateTournament(tournamentId, datosActualizados) {
+  console.log("Datos a actualizar en el servicio:", datosActualizados);
+  try {
+    const response = await api.put(
+      `/api/tournaments/${tournamentId}`,
+      datosActualizados
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Error actualizando torneo:", error);
+    throw error; // importante para que el catch del componente lo reciba
+  }
+}

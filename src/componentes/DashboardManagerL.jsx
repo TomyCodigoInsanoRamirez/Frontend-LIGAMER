@@ -8,13 +8,12 @@ import {useState, useEffect} from "react";
 export default function DashboardManagerL({ title, children }) {
   const [tournaments, setTournaments] = useState([]);
     const menuItems = [
-    { id: 1, ruta: 'manager', label: 'Mi perfil', icon: 'bi-person-fill' },
-    { id: 2, ruta: 'torneos', label: 'Torneos', icon: 'bi-trophy-fill' },
-    { id: 3, ruta: 'crearTorneo', label: 'Crear Torneo', icon: 'bi-clipboard-check-fill' }, 
+    { id: 1, ruta: 'torneos', label: 'Torneos', icon: 'bi-trophy-fill' },
+    { id: 2, ruta: 'crearTorneo', label: 'Crear Torneo', icon: 'bi-clipboard-check-fill' }, 
   ];
   // const encabezados = [ "tournamentName", "estado", "description",  "Acciones"];
   const encabezados = [
-    { key: "tournamentName", label: "Torneo" },
+    { key: "name", label: "Torneo" },
     { key: "estado",         label: "Estado Actual" },
     { key: "description",    label: "Descripción" },
     { key: "Acciones",       label: "Acciones" }
