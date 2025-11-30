@@ -118,7 +118,7 @@ body{
 .bottom-spacer {
   height: 120px; /* Espacio final para que no tape nada el navbar inferior si existe */
 }
-    style={{backgroundColor:'Red', borderColor:'Red'}}
+    /*style={{backgroundColor:'Red', borderColor:'Red'}}*/
 
 .btnVolver{
     background-color: red;

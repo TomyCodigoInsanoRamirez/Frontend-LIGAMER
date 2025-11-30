@@ -1,5 +1,7 @@
 import React from 'react';
 import { RadarChart } from '@mui/x-charts/RadarChart';
+import { useState, useEffect } from 'react';
+import {getRadarChartData} from './../utils/Service/usuario';
 
 export default function RadarChartGamers() {
   // const dataset = [
@@ -8,6 +10,32 @@ export default function RadarChartGamers() {
   //   { metric: 'Assists', alpha: 60, beta: 50, gamma: 70 },
   // ];
 
+  const [chartData, setChartData] = useState([]);
+  const [victorias, setVictorias] = useState([]);
+  const [derrotas, setDerrotas] = useState([]);
+  const [nombres, setNombres] = useState([]);
+  const [maxValue, setMaxValue] = useState(0);
+
+useEffect(() => {   
+  getRadarChartData(1)
+    .then((data) => {
+      setChartData(data.data.players);
+      console.log("Data radar chart:", data.data.players);
+    })
+    .catch((err) => console.log(err));
+}, []);
+
+useEffect(() => {
+  if (chartData.length === 0) return;
+  setVictorias(chartData.map(i => i.victorias));
+  setDerrotas(chartData.map(i => i.derrotas));
+  setNombres(chartData.map(i => i.nombre));
+
+  setMaxValue(Math.max(...victorias, ...derrotas));
+
+}, [chartData]);
+
+    
   return (
     <div className="chart-container" style={{ color: '#fff' }}>
       {/* <h3 style={{ textAlign: 'center', marginBottom: '10px' }}>
@@ -15,10 +43,10 @@ export default function RadarChartGamers() {
       </h3> */}
       <RadarChart
         height={300}
-        series={[{ label: 'Victorias', data: [1, 8, 2, 2, 5, 3] },{ label: 'Derrotas', data: [5, 3, 8, 6, 2, 7] }]}
+        series={[{ label: 'Victorias', data: victorias },{ label: 'Derrotas', data: derrotas }]}
         radar={{
-            max: 21,
-            metrics: ['Adrian', 'Tomas', 'Rubén', 'Alisson', 'Chucho', 'Ricardo'],
+            max: maxValue + 1,
+            metrics: nombres,
         }}
         />
     </div>

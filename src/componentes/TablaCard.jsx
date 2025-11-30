@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useMemo, useCallback, useRef } from "react";
 import "./TablaCard.css";
 import { Modal, Button } from "react-bootstrap";
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
-
+import {requestToJoinTeam} from '../utils/Service/usuario';
 
 export default function TablaCard({ encabezados = [], datos = [], acciones = [], onUnirse }) {
   const [paginaActual, setPaginaActual] = useState(1);
@@ -58,14 +57,13 @@ export default function TablaCard({ encabezados = [], datos = [], acciones = [],
   }, []);
 
   const ir = useCallback((fila) => {
-    if(fila.estado === "En curso"){
+    if (fila.estado === "En curso") {
       navigate("/TorneoEnCurso/123", { replace: true, state: { from: fila } });
       return;
-    }else if(fila.estado === "Guardado"){
-      navigate("/TorneoGuardado/123", { replace: true, state: { from: fila } });
+    } else if (fila.estado === "Guardado") {
+      navigate(`/TorneoGuardado/${fila.id}`, { replace: true, state: { from: fila } });
       return;
     }
-    
   }, [navigate]);
 
   const cerrarModal = useCallback(() => {
@@ -80,8 +78,7 @@ export default function TablaCard({ encabezados = [], datos = [], acciones = [],
   const handleAccionClick = useCallback((accionObj, fila, e) => {
     if (e) e.stopPropagation();
     const accion = accionObj?.accion || "Acción";
-    
-    // Configuración especial para la acción "Unirse"
+
     let alertConfig = {
       title: `¿${accion} "${fila.nombre || ''}"?`,
       text: `Organizador: ${fila.organizador || '-'}\nEquipos: ${fila.equipos ?? '-'}`,
@@ -95,20 +92,19 @@ export default function TablaCard({ encabezados = [], datos = [], acciones = [],
     };
 
     if (accion === "Unirse") {
-      alertConfig.title = `¿Deseas unirte al equipo "${fila.nombre || ''}"?`;
+      alertConfig.title = `¿Deseas unirte al equipo "${fila.name || ''}"?`;
       alertConfig.text = `Al confirmar, se enviará una solicitud para unirte a este equipo. El administrador revisará tu solicitud y te notificará la respuesta.`;
     }
 
     if (accion === "Asignar") {
-      alertConfig.title = `¿Asignar como organizador a "${fila.nombre || ''}"?`;
+      alertConfig.title = `¿Asignar como organizador a "${fila.tournamentName || ''}"?`;
       alertConfig.text = `Al confirmar, se asignará a esta persona como organizador.`;
     }
 
     MySwal.fire(alertConfig).then((result) => {
       if (!result.isConfirmed) return;
-      // Ejecutar acción real según tipo
+
       if (accion === "Asignar") {
-        // Mostrar alerta de éxito después de confirmar
         MySwal.fire({
           icon: 'success',
           title: 'Organizador asignado correctamente',
@@ -125,7 +121,6 @@ export default function TablaCard({ encabezados = [], datos = [], acciones = [],
         return;
       }
       if (accion === "Retar") {
-        // Mostrar alerta de éxito después de confirmar
         MySwal.fire({
           icon: 'success',
           title: 'Reto enviado',
@@ -142,113 +137,131 @@ export default function TablaCard({ encabezados = [], datos = [], acciones = [],
         return;
       }
       if (accion === "Unirse") {
-        // Mostrar alerta de éxito después de confirmar
         MySwal.fire({
           icon: 'success',
           title: 'Solicitud enviada',
           text: `Ya has solicitado unirte al equipo "${fila.nombre || ''}". Espera respuesta del administrador.`,
           confirmButtonText: 'Aceptar',
           confirmButtonColor: '#4A3287'
-        });
-        
-        if (typeof onUnirse === "function") {
-          onUnirse(fila);
-        } else {
-          // fallback a navegación si no hay callback
-          ir(fila);
+        })
+        console.log("Solicitando unirse al equipo:", fila);
+        //if (onUnirse) onUnirse(fila);
+        try {
+          requestToJoinTeam(fila.id)
+            .then((data) => { console.log("Respuesta unirse al equipo:", data); })
+            .catch((err) => { console.error("Error unirse al equipo:", err); });
+        } catch (error) {
+          console.error("Error en la solicitud para unirse al equipo:", error);
         }
         return;
       }
-      // Otros casos: fallback a abrir modal
       abrirModal(fila);
     });
   }, [MySwal, abrirModal, ir, onUnirse]);
 
   const renderAcciones = (fila) => {
+    return acciones.map((a, index) => {
+      if (a.accion === "Asignar") {
+        return (
+          <button
+            key={index}
+            className="btn-accion me-1"
+            onClick={(e) => handleAccionClick(a, fila, e)}
+          >
+            <i className={a.icon}></i>
+          </button>
+        );
+      }
 
-  return acciones.map((a, index) => {
-    console.log("Si deberia de tener acciones")
-    //Funcionalidad de ASIGNAR PENDIENTE
-    if (a.accion === "Asignar") {
-      return (
-        <button
-          key={index}
-          className="btn-accion me-1"
-          onClick={(e) => handleAccionClick(a, fila, e)}
-        >
-          <i className={a.icon}></i>
-        </button>
-      );
-    }
-    //PENDIENTEEE
+      if (a.accion === "Detalles") {
+        return (
+          <button
+            key={index}
+            className="btn-accion me-1"
+            onClick={(e) => {
+              e.stopPropagation();
+              abrirModal(fila);
+            }}
+          >
+            <i className={a.icon}></i>
+          </button>
+        );
+      }
 
-    // Detalles: abrir modal directamente (sin SweetAlert)
-    if (a.accion === "Detalles") {
-      return (
-        <button
-          key={index}
-          className="btn-accion me-1"
-          onClick={(e) => {
-            e.stopPropagation();
-            abrirModal(fila);
-          }}
-        >
-          <i className={a.icon}></i>
-        </button>
-      );
-    }
+      if (a.accion === "Ver") {
+        return (
+          <button
+            key={index}
+            className="btn-accion me-1"
+            onClick={(e) => handleAccionClick(a, fila, e)}
+          >
+            <i className={a.icon}></i>
+          </button>
+        );
+      }
 
-    if (a.accion === "Ver") {
-      return (
-        <button
-          key={index}
-          className="btn-accion me-1"
-          onClick={(e) => handleAccionClick(a, fila, e)}
-        >
-          <i className={a.icon}></i>
-        </button>
-      );
-    }
+      if (a.accion === "Retar") {
+        return (
+          <button
+            key={index}
+            className="btn-accion me-1"
+            onClick={(e) => handleAccionClick(a, fila, e)}
+          >
+            <i className={a.icon}></i>
+          </button>
+        );
+      }
 
-    if (a.accion === "Retar") {
-      return (
-        <button
-          key={index}
-          className="btn-accion me-1"
-          onClick={(e) => handleAccionClick(a, fila, e)}
-        >
-          <i className={a.icon}></i>
-        </button>
-      );
-    }
+      if (a.accion === "Unirse") {
+        return (
+          <button
+            key={index}
+            className="btn-accion me-1"
+            onClick={(e) => handleAccionClick(a, fila, e)}
+          >
+            <i className={a.icon}></i>
+          </button>
+        );
+      }
 
-    if (a.accion === "Unirse") {
-      return (
-        <button
-          key={index}
-          className="btn-accion me-1"
-          onClick={(e) => handleAccionClick(a, fila, e)}
-        >
-          <i className={a.icon}></i>
-        </button>
-      );
-    }
+      return null;
+    });
+  };
 
-    return null;
-  });
-};
+  // Normalizamos encabezados: soportamos string o {key, label}
+  const encabezadosNormalizados = useMemo(() => {
+    return encabezados.map(col => {
+      if (typeof col === "string") {
+        return { key: col, label: col };
+      }
+      return { key: col.key, label: col.label ?? col.key };
+    });
+  }, [encabezados]);
+
+  // Detectar si hay columna de imagen
+  const tieneColumnaImagen = encabezadosNormalizados.some(
+    col => col.key.toLowerCase() === "imagen"
+  );
 
   const Row = React.memo(function Row({ fila }) {
     return (
-      <div className="fila-card" onClick={() => acciones.some(a => a.accion === "Ver") && abrirModal(fila)}>
-        {encabezados.includes("Imagen") && (
+      <div
+        className="fila-card"
+        onClick={() => acciones.some(a => a.accion === "Ver") && abrirModal(fila)}
+      >
+        {tieneColumnaImagen && (
           <div className="imagen-col">
-            <img src={fila.imagen} alt={fila.nombre || "Imagen"} className="imagen-placeholder" />
+            <img
+              src={fila.imagen}
+              alt={fila.nombre || "Imagen"}
+              className="imagen-placeholder"
+            />
           </div>
         )}
-        {encabezados.map((col, i) => {
-          if (col === "Imagen") return null;
-          if (col === "Acciones") {
+
+        {encabezadosNormalizados.map((col, i) => {
+          if (col.key.toLowerCase() === "imagen") return null;
+          if (col.key === "Acciones") {
             return (
               <div key={i} className="valor-col">
                 {renderAcciones(fila)}
@@ -257,7 +270,7 @@ export default function TablaCard({ encabezados = [], datos = [], acciones = [],
           }
           return (
             <div key={i} className="valor-col">
-              {fila[col.toLowerCase()] || "-"}
+              {fila[col.key] ?? "-"}
             </div>
           );
         })}
@@ -282,10 +295,10 @@ export default function TablaCard({ encabezados = [], datos = [], acciones = [],
       <div className="tabla-scroll">
         {/* Encabezados */}
         <div className="encabezados">
-          {encabezados.includes("Imagen") }
-          {encabezados.map((col, i) => (
-            <div key={i} className="encabezado-item" style={{color:"white", textWrap : 'wrap'}}>
-              {col} 
+          {tieneColumnaImagen && <div className="encabezado-item"></div>}
+          {encabezadosNormalizados.map((col, i) => (
+            <div key={i} className="encabezado-item" style={{ color: "white", textWrap: 'wrap' }}>
+              {col.label}
             </div>
           ))}
         </div>
@@ -346,14 +359,32 @@ export default function TablaCard({ encabezados = [], datos = [], acciones = [],
                   />
                 </div>
               )}
-              {Object.entries(filaSeleccionada).map(([key, value]) => {
-                if (key === "id" || key === "imagen") return null;
-                return (
-                  <p key={key}>
-                    <strong>{key.charAt(0).toUpperCase() + key.slice(1)}:</strong> {value}
-                  </p>
-                );
-              })}
+              {/* AHORA (nunca falla) */}
+              {encabezadosNormalizados
+                .filter(col => col.key !== "Acciones" && col.key !== "imagen" && col.key !== "Imagen")
+                .map((col, index) => {
+                  const key = col.key;
+                  const value = filaSeleccionada?.[key];
+
+                  // Convertir valor a string seguro
+                  const valorMostrable = (() => {
+                    if (value === null || value === undefined) return "-";
+                    if (typeof value === "object") {
+                      // Opcional: mostrar algo más bonito si tiene nombre
+                      if (value.nombre) return value.nombre;
+                      if (value.name) return value.name;
+                      if (value.tournamentName) return value.tournamentName;
+                      return JSON.stringify(value);
+                    }
+                    return String(value);
+                  })();
+
+                  return (
+                    <p key={key || index}>
+                      <strong>{col.label}:</strong> {valorMostrable}
+                    </p>
+                  );
+                })}
             </>
           )}
         </Modal.Body>

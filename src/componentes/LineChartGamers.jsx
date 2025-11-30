@@ -10,6 +10,9 @@ import {
   ResponsiveContainer,
 } from 'recharts';
 
+import { useState, useEffect } from 'react';
+import {getLineChartData} from './../utils/Service/usuario';
+
 // Datos de ejemplo: puedes reemplazar por tus datos reales
 const data = [
   { torneo: 'LIGAMER 2022', encuentros: 45, ganados: 28, perdidos: 17 },
@@ -19,10 +22,27 @@ const data = [
   { torneo: 'Elite Cup 2025', encuentros: 65, ganados: 41, perdidos: 24 },
 ];
 
+
+
 export default function TorneosLineChart() {
+
+  const [chartData, setChartData] = useState([]);
+
+useEffect(() => {
+  getLineChartData(5)
+    .then((data) => {
+      setChartData(data.data);    
+      console.log("Data line chart:", data.data);
+    })
+    .catch((err) => console.log(err));
+}, []);
+
+useEffect(() => {
+  console.log("Estado chartData actualizado:", chartData);
+}, [chartData]);
   return (
     <ResponsiveContainer width="100%" height={300}>
-      <LineChart data={data} margin={{ top: 20, right: 30, left: 20, bottom: 10 }}>
+      <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 10 }}>
         {/* Línea principal: total de encuentros */}
         <Line
           type="monotone"

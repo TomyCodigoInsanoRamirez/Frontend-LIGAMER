@@ -89,3 +89,20 @@ export async function getAllUsers(){
     throw error;
   }
 }
+
+
+//--------------------------------------------
+// Endopoint: /api/tournaments
+//--------------------------------------------
+export async function getAllTournaments(){
+  try {
+    const response = await api.get("/api/tournaments");
+    return response.data;
+    console.log(response.data);
+  } catch (error) {
+    console.error("Error obteniendo los torneos:", error);
+    throw error;
+  }
+}
+
+//--------------------------------------------

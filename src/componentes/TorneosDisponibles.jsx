@@ -1,9 +1,10 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import './DashboardLayout.css';
 import Sidebar from "./Sidebar";
 import TablaCard from "./TablaCard";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
+import { getAllTournaments } from "../utils/Service/General";
 
 export default function TorneosDisponibles({ title, children }) {
     const menuItems = [
@@ -14,7 +15,14 @@ export default function TorneosDisponibles({ title, children }) {
     { id: 5, ruta: 'torneosDisponibles', label: 'Torneos', icon: 'bi-trophy-fill' },
   ];
 
-  const encabezados = [ "Nombre", "Organizador", "Equipos", "Acciones"];
+  //const encabezados = [ "Nombre", "Organizador", "Equipos", "Acciones"];
+  const encabezados = [
+    { key: "tournamentName",        label: "Nombre" },
+    { key: "organizador",   label: "Organizador" }, 
+    { key: "numTeams",       label: "Equipos" },
+    { key: "Acciones",      label: "Acciones" }
+  ];
+
   const datos = [
     { id: 1,  nombre: "Liga de campeones", organizador: "Juan Spre", equipos: 16, cuposTomados: 10 },
     { id: 2,  nombre: "Liga de campeones", organizador: "Juan Spre", equipos: 16, cuposTomados: 10 },
@@ -33,6 +41,8 @@ export default function TorneosDisponibles({ title, children }) {
     { accion: "Detalles", icon: "bi-eye-fill" },
     { accion: "Unirse", icon: "bi-person-fill-add" },	
   ];
+
+  const [tournament,setTournaments] = useState([]);
 
   const MySwal = withReactContent(Swal);
   const handleUnirse = (torneo) => {
@@ -60,6 +70,18 @@ export default function TorneosDisponibles({ title, children }) {
     });
   };
 
+  useEffect(() => {
+    getAllTournaments()
+      .then((data) => { 
+        console.log("Torneos disponibles: "+data);
+        setTournaments(data.data);
+      })
+      .catch((err) => console.log(err));
+  }, []);
+
+  useEffect(() => {
+    console.log("Estado tournaments actualizado desde la otra pantalla:", tournament);
+  }, [tournament]); 
   return (
     <div className="dashboard-layout">
       <Sidebar menuItems={menuItems} />
@@ -68,7 +90,7 @@ export default function TorneosDisponibles({ title, children }) {
           <div className="col-12">
             <TablaCard
               encabezados={encabezados}
-              datos={datos}
+              datos={tournament}
               acciones={acciones}
               onUnirse={handleUnirse}
             />

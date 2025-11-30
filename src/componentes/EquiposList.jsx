@@ -2,8 +2,25 @@ import React from "react";
 import './DashboardLayout.css';
 import Sidebar from "./Sidebar";
 import TablaCard from "./TablaCard";
+import { getAllTeams } from "../utils/Service/usuario";
+import { useState, useEffect } from "react";
 
 export default function EquiposList() {
+  const [teams, setTeams] = useState([]);
+
+  useEffect(() => { 
+    getAllTeams()
+      .then((data) => {
+        setTeams(data);
+        console.log("Data equipos: " + data);
+      })
+      .catch((err) => console.log(err));
+  }, []);
+
+  useEffect(() => {
+    console.log("Equipos actualizado:", teams);
+  }, [teams]);
+
   const menuItems = [
     { id: 1, ruta: 'user', label: 'Jugadores', icon: 'bi-person-lines-fill' },
     { id: 2, ruta: 'equipos', label: 'Equipos', icon : 'bi-people-fill' },
@@ -12,7 +29,12 @@ export default function EquiposList() {
     { id: 5, ruta: 'torneosDisponibles', label: 'Torneos', icon: 'bi-trophy-fill' },
   ];
 
-  const encabezados = ["Nombre", "Miembros", "Descripción", "Acciones"];
+  const encabezados = [
+    {key:"name", label:"Nombre"}, 
+    {key:"members",label:"Miembros"}, 
+    {key:"description",label:"Descripción"}, 
+    {key:"Acciones",label:"Acciones"}
+  ];
   const datos = [
     { id: 1, nombre: "Los Rayos FC", miembros: 12, descripcion: "Equipo corporativo - turno mañana" },
     { id: 2, nombre: "Tigres del Norte", miembros: 10, descripcion: "Equipo mixto - veteranos" },
@@ -34,7 +56,7 @@ export default function EquiposList() {
           <div className="col-12">
             <TablaCard
               encabezados={encabezados}
-              datos={datos}
+              datos={teams}
               acciones={acciones}
             />
           </div>
