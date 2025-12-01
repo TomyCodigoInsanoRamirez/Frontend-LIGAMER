@@ -74,9 +74,6 @@ export async function changePassword(data){
     throw error;
   }
 }
-
-
-
 //--------------------------------------------
 //Endopoint: /api/admin/users
 //--------------------------------------------
