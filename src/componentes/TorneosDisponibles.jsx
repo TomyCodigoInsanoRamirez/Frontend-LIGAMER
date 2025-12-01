@@ -17,9 +17,9 @@ export default function TorneosDisponibles({ title, children }) {
 
   //const encabezados = [ "Nombre", "Organizador", "Equipos", "Acciones"];
   const encabezados = [
-    { key: "tournamentName",        label: "Nombre" },
+    { key: "name",        label: "Nombre" },
     { key: "organizador",   label: "Organizador" }, 
-    { key: "numTeams",       label: "Equipos" },
+    { key: "teamCount",       label: "Equipos" },
     { key: "Acciones",      label: "Acciones" }
   ];
 
