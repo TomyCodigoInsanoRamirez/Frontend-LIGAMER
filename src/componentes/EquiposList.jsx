@@ -23,10 +23,19 @@ export default function EquiposList() {
     setFormData({ nombre: "", descripcion: "" });
   };
 
+  // const handleInputChange = (e) => {
+  //   const { name, value } = e.target;
+  //   setFormData(prev => ({ ...prev, [name]: value }));
+  // };
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    const { name, files, value } = e.target;
+
+    setFormData({
+      ...formData,
+      [name]: files ? files[0] : value
+    });
   };
+
 
 const handleSubmit = async (e) => {
   e.preventDefault();
@@ -177,6 +186,15 @@ const handleSubmit = async (e) => {
                 value={formData.descripcion}
                 onChange={handleInputChange}
                 placeholder="Describe tu equipo..."
+              />
+            </Form.Group>
+            <Form.Group className="mb-3">
+              <Form.Label>Logo del Equipo *</Form.Label>
+              <Form.Control
+                type="file"
+                name="logo"
+                accept="image/*"
+                onChange={handleInputChange}
               />
             </Form.Group>
           </Form>
