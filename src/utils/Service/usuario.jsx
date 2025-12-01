@@ -53,6 +53,20 @@ export async function requestToJoinTeam(teamId) {
 }
 
 // -----------------------------------------
+// Endpoint: /api/teams/:teamId/members
+//------------------------------------------
+export async function getTeamMembers(teamId) {
+    try {
+        const response = await api.get(`/api/teams/${teamId}/members`); 
+        console.log("Miembros del equipo obtenidos:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error("Error obteniendo los miembros del equipo:", error);
+        throw error;
+    } 
+}
+
+// -----------------------------------------
 // Endpoint: /api/stats/pie
 // -----------------------------------------
 export async function getPieChartData(teamId) {

@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import API from './../utils/api';
+import { getProfile } from '../utils/Service/General';
 
 const AuthContext = createContext(null);
 export function useAuth() { return useContext(AuthContext); }
@@ -38,16 +39,36 @@ export function AuthProvider({ children }) {
       // Extraer el rol principal (ROLE_USUARIO, ROLE_ORGANIZADOR, ROLE_ADMINISTRADOR)
       const role = authorities[0] || 'ROLE_USUARIO';
       
-      setUser({ email, role });
+      // Obtener el perfil completo del usuario (incluyendo teamId)
+      getProfile()
+        .then((profileResponse) => {
+          const profile = profileResponse.data;
+          const teamId = profile.team?.id || profile.ownedTeam?.id;
+          setUser({ 
+            email, 
+            role,
+            id: profile.id,
+            nombre: profile.nombre,
+            teamId: teamId,
+            team: profile.team,
+            ownedTeam: profile.ownedTeam
+          });
+          setLoading(false);
+        })
+        .catch((err) => {
+          console.error('Error obteniendo perfil:', err);
+          // Si falla, usar solo los datos del JWT
+          setUser({ email, role });
+          setLoading(false);
+        });
     } else {
       // Token inválido
       console.error('Invalid token payload');
       API.logout();
       setUser(null);
       localStorage.removeItem('token');
+      setLoading(false);
     }
-    
-    setLoading(false);
   }, []);
 
   const login = async (email, password) => {
@@ -72,9 +93,30 @@ export function AuthProvider({ children }) {
     const authorities = payload.authorities || [];
     const userRole = authorities[0] || 'ROLE_USUARIO';
     
-    const userObj = { email: userEmail, role: userRole };
-    setUser(userObj);
-    return userObj;
+    // Obtener el perfil completo del usuario
+    try {
+      const profileResponse = await getProfile();
+      const profile = profileResponse.data;
+      const teamId = profile.team?.id || profile.ownedTeam?.id;
+      
+      const userObj = { 
+        email: userEmail, 
+        role: userRole,
+        id: profile.id,
+        nombre: profile.nombre,
+        teamId: teamId,
+        team: profile.team,
+        ownedTeam: profile.ownedTeam
+      };
+      setUser(userObj);
+      return userObj;
+    } catch (err) {
+      console.error('Error obteniendo perfil completo:', err);
+      // Si falla, usar solo los datos del JWT
+      const userObj = { email: userEmail, role: userRole };
+      setUser(userObj);
+      return userObj;
+    }
   };
 
   const logout = () => {

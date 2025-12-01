@@ -87,8 +87,6 @@ export async function getAllUsers(){
     throw error;
   }
 }
-
-
 //--------------------------------------------
 // Endopoint: /api/tournaments
 //--------------------------------------------
@@ -101,5 +99,16 @@ export async function getAllTournaments(){
     throw error;
   }
 }
-
 //--------------------------------------------
+// Endpoint: /api/teams para crear equipos
+//--------------------------------------------
+export async function createTeam(teamData){
+  try {
+    const response = await api.post("/api/teams", teamData);
+    console.log("Equipo creado:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error creando el equipo:", error);
+    throw error;
+  }
+}

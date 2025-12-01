@@ -7,7 +7,7 @@ import withReactContent from "sweetalert2-react-content";
 import {requestToJoinTeam} from '../utils/Service/usuario';
 import {assignOrganizerRole} from '../utils/Service/administrador';
 
-export default function TablaCard({ encabezados = [], datos = [], acciones = [], onUnirse }) {
+export default function TablaCard({ encabezados = [], datos = [], acciones = [], onUnirse, actionButton }) {
   const [paginaActual, setPaginaActual] = useState(1);
   const [modalAbierto, setModalAbierto] = useState(false);
   const [filaSeleccionada, setFilaSeleccionada] = useState(null);
@@ -290,13 +290,21 @@ export default function TablaCard({ encabezados = [], datos = [], acciones = [],
     <div className="tabla-card-container">
       {/* Buscador */}
       <div className="tabla-acciones mb-3">
-        <input
-          type="text"
-          placeholder="Buscar en toda la tabla..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="form-control"
-        />
+        <div className="d-flex justify-content-between align-items-center gap-2">
+          <input
+            type="text"
+            placeholder="Buscar en toda la tabla..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="form-control"
+            style={{ flex: 1 }}
+          />
+          {actionButton && (
+            <div>
+              {actionButton}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Tabla con scroll horizontal */}
