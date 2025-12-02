@@ -3,12 +3,68 @@ import './DashboardLayout.css';
 import Sidebar from "./Sidebar";
 import TablaCard from "./TablaCard";
 import { useState, useEffect } from "react";
-import { getTeamMembers } from "../utils/Service/usuario";
+import { getTeamMembers, leaveTeam } from "../utils/Service/usuario";
 import { useAuth } from "../context/AuthContext";
+import Swal from "sweetalert2";
 
 export default function JugadoresList() {
   const [teamMembers, setTeamMembers] = useState([]);
   const { user } = useAuth();
+
+  const handleLeaveTeam = async () => {
+    if (!user?.teamId) {
+      Swal.fire({
+        icon: 'warning',
+        title: 'No perteneces a ningún equipo',
+        text: 'No puedes salir de un equipo al que no perteneces',
+        confirmButtonColor: '#4A3287'
+      });
+      return;
+    }
+
+    // Confirmar antes de salir
+    const result = await Swal.fire({
+      title: '¿Estás seguro?',
+      text: 'Una vez que salgas del equipo, tendrás que solicitar unirte nuevamente si quieres volver',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#4A3287',
+      confirmButtonText: 'Sí, salir del equipo',
+      cancelButtonText: 'Cancelar'
+    });
+
+    if (result.isConfirmed) {
+      try {
+        await leaveTeam(user.teamId);
+        
+        Swal.fire({
+          icon: 'success',
+          title: 'Has salido del equipo',
+          text: 'Has salido exitosamente del equipo',
+          confirmButtonColor: '#4A3287'
+        }).then(() => {
+          // Recargar la página o redirigir
+          window.location.reload();
+        });
+
+      } catch (error) {
+        console.log("ERROR COMPLETO:", error);
+        console.log("ERROR BACKEND:", error.response?.data);
+
+        const errorMessage = typeof error.response?.data === 'string' 
+          ? error.response.data 
+          : error.response?.data?.message || "Error al salir del equipo";
+
+        Swal.fire({
+          icon: "error",
+          title: "Error al salir del equipo",
+          text: errorMessage,
+          confirmButtonColor: "#4A3287"
+        });
+      }
+    }
+  };
   
   const menuItems = [
     { id: 1, ruta: 'user', label: 'Jugadores', icon: 'bi-person-lines-fill' },
@@ -70,6 +126,21 @@ export default function JugadoresList() {
               encabezados={encabezados}
               datos={teamMembers}
               acciones={acciones}
+              actionButton={
+                user?.teamId && (
+                  <button 
+                    className="btn btn-danger"
+                    style={{ 
+                      fontWeight: 'bold',
+                      whiteSpace: 'nowrap'
+                    }}
+                    onClick={handleLeaveTeam}
+                  >
+                    <i className="bi bi-box-arrow-left me-2"></i>
+                    Salir del Equipo
+                  </button>
+                )
+              }
             />
           </div>
         </div>

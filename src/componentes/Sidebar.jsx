@@ -51,31 +51,96 @@
 // }
 
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { requestToTeams, manageJoinRequest } from '../utils/Service/usuario';
+import Swal from 'sweetalert2';
 
 export default function Sidebar({ menuItems = [] }) {
   const { user, logout } = useAuth();
-
-  // ---------- Simulación de notificaciones (cambiarás esto por tu llamada real) ----------
-  const [notificaciones, setNotificaciones] = useState([
-    { id: 1, nombre: 'TomasInsano', solicita: 'equipo' },
-    { id: 2, nombre: 'RubenInsano', solicita: 'torneo' },
-    { id: 3, nombre: 'AnaGamer', solicita: 'equipo' },
-  ]);
-  // -----------------------------------------------------------------------------------
-
+  const [notificaciones, setNotificaciones] = useState([]);
   const [showModal, setShowModal] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const handleAceptar = (id) => {
-    console.log('Aceptar solicitud', id);
-    setNotificaciones(prev => prev.filter(n => n.id !== id));
+  // Cargar solicitudes al montar el componente
+  useEffect(() => {
+    if (user?.teamId) {
+      loadJoinRequests();
+    }
+  }, [user]);
+
+  const loadJoinRequests = async () => {
+    if (!user?.teamId) return;
+    
+    try {
+      const requests = await requestToTeams(user.teamId);
+      console.log('Solicitudes obtenidas:', requests);
+      
+      // Filtrar solo las solicitudes pendientes
+      const pendingRequests = requests.filter(request => request.status === 'PENDING');
+      setNotificaciones(pendingRequests);
+    } catch (error) {
+      console.error('Error cargando solicitudes:', error);
+    }
   };
 
-  const handleRechazar = (id) => {
-    console.log('Rechazar solicitud', id);
-    setNotificaciones(prev => prev.filter(n => n.id !== id));
+  const handleAceptar = async (requestId) => {
+    if (!user?.teamId) return;
+    
+    setLoading(true);
+    try {
+      await manageJoinRequest(user.teamId, requestId, 'ACCEPT');
+      
+      Swal.fire({
+        icon: 'success',
+        title: 'Solicitud aceptada',
+        text: 'El jugador ha sido agregado al equipo',
+        confirmButtonColor: '#4A3287'
+      });
+
+      // Remover la notificación de la lista
+      setNotificaciones(prev => prev.filter(n => n.id !== requestId));
+    } catch (error) {
+      console.error('Error aceptando solicitud:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.response?.data || 'No se pudo aceptar la solicitud',
+        confirmButtonColor: '#4A3287'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRechazar = async (requestId) => {
+    if (!user?.teamId) return;
+    
+    setLoading(true);
+    try {
+      await manageJoinRequest(user.teamId, requestId, 'REJECT');
+      
+      Swal.fire({
+        icon: 'info',
+        title: 'Solicitud rechazada',
+        text: 'La solicitud ha sido rechazada',
+        confirmButtonColor: '#4A3287'
+      });
+
+      // Remover la notificación de la lista
+      setNotificaciones(prev => prev.filter(n => n.id !== requestId));
+    } catch (error) {
+      console.error('Error rechazando solicitud:', error);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.response?.data || 'No se pudo rechazar la solicitud',
+        confirmButtonColor: '#4A3287'
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const unreadCount = notificaciones.length;
@@ -167,21 +232,31 @@ export default function Sidebar({ menuItems = [] }) {
                     <div key={notif.id} className="card mb-3">
                       <div className="card-body d-flex justify-content-between align-items-center">
                         <div>
-                          <strong>{notif.nombre}</strong> quiere unirse a tu{' '}
-                          <strong>{notif.solicita === 'equipo' ? 'equipo' : 'torneo'}</strong>
+                          <strong>{notif.user?.nombre || notif.user?.email}</strong> quiere unirse a tu equipo
+                          <div className="text-muted small">
+                            Solicitado el: {new Date(notif.createdAt).toLocaleDateString()}
+                          </div>
                         </div>
                         <div>
                           <button
                             className="btn btn-success btn-sm me-2"
                             title="Aceptar"
                             onClick={() => handleAceptar(notif.id)}
+                            disabled={loading}
                           >
-                            <i className="bi bi-check-lg"></i>
+                            {loading ? (
+                              <div className="spinner-border spinner-border-sm" role="status">
+                                <span className="visually-hidden">Loading...</span>
+                              </div>
+                            ) : (
+                              <i className="bi bi-check-lg"></i>
+                            )}
                           </button>
                           <button
                             className="btn btn-danger btn-sm"
                             title="Rechazar"
                             onClick={() => handleRechazar(notif.id)}
+                            disabled={loading}
                           >
                             <i className="bi bi-x-lg"></i>
                           </button>

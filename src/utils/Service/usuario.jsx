@@ -51,6 +51,18 @@ export async function requestToJoinTeam(teamId) {
         throw error;
     }
 }
+// -----------------------------------------
+// Endpoint: /api/teams/:teamId/join-requests
+// -----------------------------------------
+export async function requestToTeams(teamId) {
+    try {
+        const response = await api.get(`/api/teams/${teamId}/join-requests`);
+        return response.data;
+    } catch (error) {
+        console.error("Error solicitando unirse al equipo:", error);
+        throw error;
+    }
+}
 
 // -----------------------------------------
 // Endpoint: /api/teams/:teamId/members
@@ -111,4 +123,32 @@ export async function getLineChartData(teamId){
     console.error("Error obteniendo los datos del gráfico de líneas:", error);
     throw error;
   } 
+}
+
+// -----------------------------------------
+// Endpoint: /api/teams/:teamId/join-requests/:requestId - Aceptar/Rechazar solicitud
+// -----------------------------------------
+export async function manageJoinRequest(teamId, requestId, action) {
+    try {
+        const response = await api.put(`/api/teams/${teamId}/join-requests/${requestId}`, {
+            action: action // "ACCEPT" o "REJECT"
+        });
+        console.log(`Solicitud ${action === 'ACCEPT' ? 'aceptada' : 'rechazada'}:`, response.data);
+        return response.data;
+    } catch (error) {
+        console.error(`Error ${action === 'ACCEPT' ? 'aceptando' : 'rechazando'} solicitud:`, error);
+        throw error;
+    }
+}
+//-----------------------------------------
+// Endpoint: /api/teams/:teamId/leave - Salir del equipo
+//-----------------------------------------
+export async function leaveTeam(teamId) {
+    try {
+      const response = await api.post(`/api/teams/${teamId}/leave`);
+      return response.data;
+    } catch (error) {
+      console.error("Error al salir del equipo:", error);
+      throw error;
+    }
 }
