@@ -112,3 +112,18 @@ export async function createTeam(teamData){
     throw error;
   }
 }
+
+//--------------------------------------------
+// Endpoint: /api/admin/users/search?email=
+//--------------------------------------------
+export async function searchUserByEmail(email){   
+  console.log("Buscando usuario por email:", email);
+  try {
+    const response = await api.get(`/api/admin/users/search?email=${encodeURIComponent(email)}`);
+    console.log("Usuario encontrado:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error buscando el usuario por email:", error);
+    throw error;
+  } 
+}
