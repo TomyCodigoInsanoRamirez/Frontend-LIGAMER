@@ -4,14 +4,17 @@ import { Modal, Button } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
-import {requestToJoinTeam} from '../utils/Service/usuario';
+import {requestToJoinTeam, requestToTeams} from '../utils/Service/usuario';
 import {assignOrganizerRole} from '../utils/Service/administrador';
+import { useAuth } from '../context/AuthContext';
+import { getProfile } from '../utils/Service/General';
 
 export default function TablaCard({ encabezados = [], datos = [], acciones = [], onUnirse, actionButton }) {
   const [paginaActual, setPaginaActual] = useState(1);
   const [modalAbierto, setModalAbierto] = useState(false);
   const [filaSeleccionada, setFilaSeleccionada] = useState(null);
   const navigate = useNavigate();
+  const { user } = useAuth();
 
   // Búsqueda con debounce
   const [searchTerm, setSearchTerm] = useState("");
@@ -75,6 +78,57 @@ export default function TablaCard({ encabezados = [], datos = [], acciones = [],
   // SweetAlert2 wrapper
   const MySwal = withReactContent(Swal);
 
+  // Función para validar antes de unirse a un equipo
+  const validateJoinTeam = async (teamId) => {
+    try {
+      // 1. Verificar si el usuario ya tiene equipo
+      const profile = await getProfile();
+      const userProfile = profile.data;
+      
+      if (userProfile.team || userProfile.ownedTeam) {
+        MySwal.fire({
+          icon: 'warning',
+          title: 'Ya perteneces a un equipo',
+          text: 'No puedes unirte a otro equipo mientras ya formes parte de uno. Si deseas cambiar de equipo, primero debes salir del actual.',
+          confirmButtonColor: '#4A3287'
+        });
+        return false;
+      }
+
+      // 2. Verificar si ya envió solicitud a este equipo
+      try {
+        const requests = await requestToTeams(teamId);
+        const userRequest = requests.find(request => 
+          request.user?.email === user?.email && request.status === 'PENDING'
+        );
+        
+        if (userRequest) {
+          MySwal.fire({
+            icon: 'warning',
+            title: 'Solicitud ya enviada',
+            text: 'Ya tienes una solicitud pendiente para unirte a este equipo. Espera a que el administrador del equipo revise tu solicitud.',
+            confirmButtonColor: '#4A3287'
+          });
+          return false;
+        }
+      } catch (error) {
+        // Si no puede obtener las solicitudes, continuar (podría ser que no tenga permisos)
+        console.log('No se pudieron verificar solicitudes previas:', error);
+      }
+
+      return true;
+    } catch (error) {
+      console.error('Error validando estado del usuario:', error);
+      MySwal.fire({
+        icon: 'error',
+        title: 'Error de validación',
+        text: 'No se pudo verificar tu estado actual. Por favor, intenta de nuevo.',
+        confirmButtonColor: '#4A3287'
+      });
+      return false;
+    }
+  };
+
   // Función genérica que pide confirmación y ejecuta la acción
   const handleAccionClick = useCallback((accionObj, fila, e) => {
     if (e) e.stopPropagation();
@@ -94,7 +148,7 @@ export default function TablaCard({ encabezados = [], datos = [], acciones = [],
 
     if (accion === "Unirse") {
       alertConfig.title = `¿Deseas unirte al equipo "${fila.name || ''}"?`;
-      alertConfig.text = `Al confirmar, se enviará una solicitud para unirte a este equipo. El administrador revisará tu solicitud y te notificará la respuesta.`;
+      alertConfig.text = `Al confirmar, se enviará una solicitud para unirte a este equipo. El lider revisará tu solicitud y te notificará la respuesta.`;
     }
 
     if (accion === "Asignar") {
@@ -145,22 +199,39 @@ export default function TablaCard({ encabezados = [], datos = [], acciones = [],
         return;
       }
       if (accion === "Unirse") {
-        MySwal.fire({
-          icon: 'success',
-          title: 'Solicitud enviada',
-          text: `Ya has solicitado unirte al equipo "${fila.nombre || ''}". Espera respuesta del administrador.`,
-          confirmButtonText: 'Aceptar',
-          confirmButtonColor: '#4A3287'
-        })
-        console.log("Solicitando unirse al equipo:", fila);
-        //if (onUnirse) onUnirse(fila);
-        try {
+        // Validar antes de proceder
+        validateJoinTeam(fila.id).then((canJoin) => {
+          if (!canJoin) return; // Si no puede unirse, salir
+          
+          // Si pasa las validaciones, enviar solicitud
+          console.log("Solicitando unirse al equipo:", fila);
+          //if (onUnirse) onUnirse(fila);
+          
           requestToJoinTeam(fila.id)
-            .then((data) => { console.log("Respuesta unirse al equipo:", data); })
-            .catch((err) => { console.error("Error unirse al equipo:", err); });
-        } catch (error) {
-          console.error("Error en la solicitud para unirse al equipo:", error);
-        }
+            .then((data) => { 
+              console.log("Respuesta unirse al equipo:", data);
+              // Mostrar mensaje de éxito SOLO después de que la petición sea exitosa
+              MySwal.fire({
+                icon: 'success',
+                title: 'Solicitud enviada exitosamente',
+                text: `Tu solicitud para unirte al equipo "${fila.name || ''}" ha sido enviada. Espera respuesta del administrador.`,
+                confirmButtonText: 'Aceptar',
+                confirmButtonColor: '#4A3287'
+              });
+            })
+            .catch((err) => { 
+              console.error("Error unirse al equipo:", err);
+              // Mostrar mensaje de error si la petición falla
+              const errorMessage = 'Ya enviaste la solicitud a este equipo, espera respuesta del administrador.';
+              MySwal.fire({
+                icon: 'warning',
+                title: 'Solicitud duplicada',
+                text: errorMessage,
+                confirmButtonText: 'Aceptar',
+                confirmButtonColor: '#4A3287'
+              });
+            });
+        });
         return;
       }
       abrirModal(fila);
