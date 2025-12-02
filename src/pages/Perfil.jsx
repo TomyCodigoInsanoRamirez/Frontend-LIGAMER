@@ -20,6 +20,20 @@ export default function PerfilUsuario({ userData, onUpdate }) {
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
+  const [showOldPassword, setShowOldPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [passwordValidation, setPasswordValidation] = useState({
+    length: false,
+    uppercase: false,
+    number: false,
+    special: false,
+    isValid: false
+  });
+  const [confirmPasswordValidation, setConfirmPasswordValidation] = useState({
+    matches: false,
+    hasValue: false
+  });
   const [personalData, setPersonalData] = useState({
     nombre: userData.nombre || '',
     email: userData.email || '',
@@ -28,6 +42,45 @@ export default function PerfilUsuario({ userData, onUpdate }) {
   const [interests, setInterests] = useState(userData.intereses || []);
   const [newGameName, setNewGameName] = useState('');
   const [informacionUsuario, setInformacionUsuario] = useState(null);
+
+  // Funciones de validación de contraseña
+  const validatePassword = (password) => {
+    const validation = {
+      length: password.length >= 8,
+      uppercase: /[A-Z]/.test(password),
+      number: /\d/.test(password),
+      special: /[!@#$%^&*(),.?":{}|<>]/.test(password)
+    };
+    
+    validation.isValid = validation.length && validation.uppercase && validation.number && validation.special;
+    
+    setPasswordValidation(validation);
+  };
+
+  const validateConfirmPassword = (password, confirmPassword) => {
+    const validation = {
+      matches: password === confirmPassword && confirmPassword !== '',
+      hasValue: confirmPassword !== ''
+    };
+    
+    setConfirmPasswordValidation(validation);
+  };
+
+  // Manejar cambios en los campos de contraseña
+  const handlePasswordChange = (field, value) => {
+    if (field === 'old') {
+      setOldPassword(value);
+    } else if (field === 'new') {
+      setNewPassword(value);
+      validatePassword(value);
+      if (confirmNewPassword) {
+        validateConfirmPassword(value, confirmNewPassword);
+      }
+    } else if (field === 'confirm') {
+      setConfirmNewPassword(value);
+      validateConfirmPassword(newPassword, value);
+    }
+  };
 
   // Sincronizar con props
   useEffect(() => {
@@ -120,7 +173,7 @@ useEffect(() => {
       text: 'Los datos personales serán actualizados.',
       icon: 'question',
       showCancelButton: true,
-      confirmButtonText: 'Sí, guardar',
+      confirmButtonText: 'Guardar',
       cancelButtonText: 'Cancelar',
       confirmButtonColor: '#4A3287',
       cancelButtonColor: '#dc3545',
@@ -132,6 +185,7 @@ useEffect(() => {
         MySwal.fire({
           icon: 'success',
           title: '¡Datos actualizados!',
+          text: 'Tus datos se han actualizado correctamente.',
           confirmButtonColor: '#4A3287'
         });
       }
@@ -144,7 +198,7 @@ useEffect(() => {
       text: 'Tu lista será visible para otros usuarios.',
       icon: 'question',
       showCancelButton: true,
-      confirmButtonText: 'Sí, guardar',
+      confirmButtonText: 'Guardar',
       cancelButtonText: 'Cancelar',
       confirmButtonColor: '#4A3287',
       cancelButtonColor: '#dc3545',
@@ -175,6 +229,16 @@ useEffect(() => {
       return;
     }
 
+    if (!passwordValidation.isValid) {
+      MySwal.fire({
+        icon: 'error',
+        title: 'Contraseña inválida',
+        text: 'La nueva contraseña debe cumplir con todos los requisitos de seguridad.',
+        confirmButtonColor: '#4A3287'
+      });
+      return;
+    }
+
     if(newPassword !== confirmNewPassword){
       MySwal.fire({
         icon: 'error',
@@ -190,7 +254,7 @@ useEffect(() => {
       text: 'Tu contraseña será actualizada.',
       icon: 'question',
       showCancelButton: true,
-      confirmButtonText: 'Sí, guardar',
+      confirmButtonText: 'Guardar',
       cancelButtonText: 'Cancelar',
       confirmButtonColor: '#4A3287',
       cancelButtonColor: '#dc3545',
@@ -207,13 +271,19 @@ useEffect(() => {
           MySwal.fire({
           icon: 'success',
           title: '¡Contraseña actualizada!',
+          text: 'Tu contraseña ha sido cambiada correctamente.',
           confirmButtonColor: '#4A3287'
 
         });
-        // limpiar campos
+        // limpiar campos y validaciones
         setOldPassword("");
         setNewPassword("");
         setConfirmNewPassword("");
+        setShowOldPassword(false);
+        setShowNewPassword(false);
+        setShowConfirmPassword(false);
+        setPasswordValidation({ length: false, uppercase: false, number: false, special: false, isValid: false });
+        setConfirmPasswordValidation({ matches: false, hasValue: false });
         setEditingPassword(false);
 
     } catch (error) {
@@ -437,46 +507,160 @@ useEffect(() => {
 
   <Modal.Body>
     <Form>
-      <Form.Group className="mb-3">
+      <Form.Group className="mb-3 position-relative">
         <Form.Label>Contraseña actual:</Form.Label>
-        <Form.Control
-          type="password"
-          value={oldPassword}
-          onChange={(e) =>
-            setOldPassword(e.target.value)
-          }
-          placeholder="Escribe tu contraseña actual"
-        />
+        <div className="position-relative">
+          <Form.Control
+            type={showOldPassword ? 'text' : 'password'}
+            value={oldPassword}
+            onChange={(e) => handlePasswordChange('old', e.target.value)}
+            placeholder="Escribe tu contraseña actual"
+            style={{ paddingRight: '40px' }}
+          />
+          <button 
+            type="button" 
+            className="btn btn-link position-absolute"
+            style={{
+              right: '10px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              border: 'none',
+              background: 'none',
+              padding: '0',
+              color: '#6c757d'
+            }}
+            onClick={() => setShowOldPassword(!showOldPassword)} 
+            aria-label="Mostrar contraseña"
+          >
+            <i className={`bi ${showOldPassword ? 'bi-eye-slash' : 'bi-eye'}`}></i>
+          </button>
+        </div>
       </Form.Group>
 
-      <Form.Group className="mb-3">
+      <Form.Group className="mb-3 position-relative">
         <Form.Label>Nueva contraseña:</Form.Label>
-        <Form.Control
-          type="password"
-          value={newPassword}
-          onChange={(e) =>
-            setNewPassword(e.target.value)
-          }
-          placeholder="Escribe la nueva contraseña"
-        />
+        <div className="position-relative">
+          <Form.Control
+            type={showNewPassword ? 'text' : 'password'}
+            value={newPassword}
+            onChange={(e) => handlePasswordChange('new', e.target.value)}
+            placeholder="Escribe la nueva contraseña"
+            className={`${
+              newPassword && passwordValidation.isValid ? 'is-valid' : 
+              newPassword && !passwordValidation.isValid ? 'is-invalid' : ''
+            }`}
+            style={{
+              paddingRight: newPassword && passwordValidation.isValid ? '95px' : '40px'
+            }}
+          />
+          <button 
+            type="button" 
+            className="btn btn-link position-absolute"
+            style={{
+              right: newPassword && passwordValidation.isValid ? '65px' : '10px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              border: 'none',
+              background: 'none',
+              padding: '0',
+              color: '#6c757d',
+              zIndex: 10
+            }}
+            onClick={() => setShowNewPassword(!showNewPassword)} 
+            aria-label="Mostrar contraseña"
+          >
+            <i className={`bi ${showNewPassword ? 'bi-eye-slash' : 'bi-eye'}`}></i>
+          </button>
+        </div>
+        
+        {/* Indicadores de requisitos de contraseña */}
+        {newPassword && (
+          <div className="mt-2 p-2 rounded" style={{backgroundColor: '#f8f9fa', border: '1px solid #dee2e6'}}>
+            <small className="text-muted d-block mb-1">Requisitos de contraseña:</small>
+            <div className="d-flex flex-wrap gap-1">
+              <small className={`badge ${passwordValidation.length ? 'bg-success' : 'bg-secondary'}`}>
+                <i className={`bi ${passwordValidation.length ? 'bi-check' : 'bi-x'} me-1`}></i>
+                8+ caracteres
+              </small>
+              <small className={`badge ${passwordValidation.uppercase ? 'bg-success' : 'bg-secondary'}`}>
+                <i className={`bi ${passwordValidation.uppercase ? 'bi-check' : 'bi-x'} me-1`}></i>
+                Mayúscula
+              </small>
+              <small className={`badge ${passwordValidation.number ? 'bg-success' : 'bg-secondary'}`}>
+                <i className={`bi ${passwordValidation.number ? 'bi-check' : 'bi-x'} me-1`}></i>
+                Número
+              </small>
+              <small className={`badge ${passwordValidation.special ? 'bg-success' : 'bg-secondary'}`}>
+                <i className={`bi ${passwordValidation.special ? 'bi-check' : 'bi-x'} me-1`}></i>
+                Carácter especial
+              </small>
+            </div>
+          </div>
+        )}
       </Form.Group>
 
-      <Form.Group className="mb-3">
+      <Form.Group className="mb-3 position-relative">
         <Form.Label>Confirmar nueva contraseña:</Form.Label>
-        <Form.Control
-          type="password"
-          value={confirmNewPassword}
-          onChange={(e) =>
-            setConfirmNewPassword(e.target.value)
-          }
-          placeholder="Confirma la nueva contraseña"
-        />
+        <div className="position-relative">
+          <Form.Control
+            type={showConfirmPassword ? 'text' : 'password'}
+            value={confirmNewPassword}
+            onChange={(e) => handlePasswordChange('confirm', e.target.value)}
+            placeholder="Confirma la nueva contraseña"
+            className={`${
+              confirmPasswordValidation.hasValue && !confirmPasswordValidation.matches ? 'is-invalid' : ''
+            }`}
+            style={{
+              paddingRight: confirmPasswordValidation.matches ? '95px' : '40px'
+            }}
+          />
+          <button 
+            type="button" 
+            className="btn btn-link position-absolute"
+            style={{
+              right: confirmPasswordValidation.matches ? '65px' : '10px',
+              top: '50%',
+              transform: 'translateY(-50%)',
+              border: 'none',
+              background: 'none',
+              padding: '0',
+              color: '#6c757d',
+              zIndex: 10
+            }}
+            onClick={() => setShowConfirmPassword(!showConfirmPassword)} 
+            aria-label="Mostrar contraseña"
+          >
+            <i className={`bi ${showConfirmPassword ? 'bi-eye-slash' : 'bi-eye'}`}></i>
+          </button>
+        </div>
+        
+        {/* Indicador de validación para confirmar contraseña */}
+        {confirmPasswordValidation.hasValue && (
+          <div className="mt-2 p-2 rounded" style={{backgroundColor: '#f8f9fa', border: '1px solid #dee2e6'}}>
+            <div className="d-flex align-items-center">
+              <small className={`badge ${confirmPasswordValidation.matches ? 'bg-success' : 'bg-danger'}`}>
+                <i className={`bi ${confirmPasswordValidation.matches ? 'bi-check' : 'bi-x'} me-1`}></i>
+                {confirmPasswordValidation.matches ? 'Las contraseñas coinciden' : 'Las contraseñas no coinciden'}
+              </small>
+            </div>
+          </div>
+        )}
       </Form.Group>
     </Form>
   </Modal.Body>
 
     <Modal.Footer>
-    <Button variant="danger" onClick={() => setEditingPassword(false)}>
+    <Button variant="danger" onClick={() => {
+      setEditingPassword(false);
+      setOldPassword("");
+      setNewPassword("");
+      setConfirmNewPassword("");
+      setShowOldPassword(false);
+      setShowNewPassword(false);
+      setShowConfirmPassword(false);
+      setPasswordValidation({ length: false, uppercase: false, number: false, special: false, isValid: false });
+      setConfirmPasswordValidation({ matches: false, hasValue: false });
+    }}>
       Cancelar
     </Button>
     <Button
