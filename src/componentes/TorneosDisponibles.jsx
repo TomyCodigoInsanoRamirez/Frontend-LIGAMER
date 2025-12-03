@@ -39,7 +39,7 @@ export default function TorneosDisponibles({ title, children }) {
   ];
   const acciones = [
     { accion: "Detalles", icon: "bi-eye-fill" },
-    { accion: "Unirse", icon: "bi-person-fill-add" },	
+    { accion: "Participar", icon: "bi-person-fill-add" },	
   ];
 
   const [tournament,setTournaments] = useState([]);

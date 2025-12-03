@@ -155,6 +155,12 @@ export default function TablaCard({ encabezados = [], datos = [], acciones = [],
       alertConfig.text = `Al confirmar, se enviará una solicitud para unirte a este equipo. El líder revisará tu solicitud y te notificará la respuesta.`;
     }
 
+    if (accion === "Participar") {
+      const nombreTorneo = fila.tournamentName || fila.nombre || fila.name || 'este torneo';
+      alertConfig.title = `¿Deseas participar en el torneo "${nombreTorneo}"?`;
+      alertConfig.text = `Al confirmar, se registrará tu equipo en este torneo. El organizador revisará tu solicitud y te notificará la respuesta.`;
+    }
+
     if (accion === "Asignar") {
       const nombreTorneo = fila.tournamentName || fila.nombre || 'este torneo';
       alertConfig.title = `¿Asignar como organizador?`;
@@ -239,6 +245,38 @@ export default function TablaCard({ encabezados = [], datos = [], acciones = [],
         });
         return;
       }
+
+      if (accion === "Participar") {
+        // Validar antes de proceder (similar a unirse a equipo pero para torneos)
+        console.log("Solicitando participar en el torneo:", fila);
+        
+        // Aquí podrías agregar validaciones específicas para torneos
+        // Por ejemplo: verificar si ya está registrado, si tiene equipo, etc.
+        
+        // Por ahora, simular el registro en torneo
+        try {
+          // TODO: Reemplazar con el endpoint real para registrarse en torneo
+          // await registerInTournament(fila.id);
+          
+          MySwal.fire({
+            icon: 'success',
+            title: 'Registro exitoso',
+            text: `Te has registrado correctamente en el torneo "${fila.tournamentName || fila.nombre || ''}". Espera confirmación del organizador.`,
+            confirmButtonText: 'Aceptar',
+            confirmButtonColor: '#4A3287'
+          });
+        } catch (err) {
+          console.error("Error participando en torneo:", err);
+          MySwal.fire({
+            icon: 'warning',
+            title: 'Error en el registro',
+            text: 'No se pudo completar el registro en el torneo. Intenta de nuevo más tarde.',
+            confirmButtonText: 'Aceptar',
+            confirmButtonColor: '#4A3287'
+          });
+        }
+        return;
+      }
       abrirModal(fila);
     });
   }, [MySwal, abrirModal, ir, onUnirse]);
@@ -297,6 +335,18 @@ export default function TablaCard({ encabezados = [], datos = [], acciones = [],
       }
 
       if (a.accion === "Unirse") {
+        return (
+          <button
+            key={index}
+            className="btn-accion me-1"
+            onClick={(e) => handleAccionClick(a, fila, e)}
+          >
+            <i className={a.icon}></i>
+          </button>
+        );
+      }
+
+      if (a.accion === "Participar") {
         return (
           <button
             key={index}
