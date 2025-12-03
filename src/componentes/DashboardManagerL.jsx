@@ -3,6 +3,7 @@ import './DashboardLayout.css';
 import Sidebar from "./Sidebar";  
 import TablaCard from "./TablaCard";
 import {getAllTournaments} from '../utils/Service/General';
+import {getAllMyTournaments} from '../utils/Service/General';
 import {useState, useEffect} from "react";
 
 export default function DashboardManagerL({ title, children }) {
@@ -31,7 +32,7 @@ export default function DashboardManagerL({ title, children }) {
   ];
 
   useEffect(() => {
-    getAllTournaments()
+    getAllMyTournaments()
       .then((data) => {
         setTournaments(data);
         console.log("Data insana: "+data);
