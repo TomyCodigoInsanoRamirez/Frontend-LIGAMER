@@ -55,7 +55,7 @@ export default function DashboardJugadores() {
 
   const acciones = [
     { accion: "Detalles",  icon: "bi-eye-fill" },
-    { accion: "Retar",  icon: "bi-send-fill" },
+    // { accion: "Retar",  icon: "bi-send-fill" },
   ];
 
   return (
