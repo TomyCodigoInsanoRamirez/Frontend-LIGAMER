@@ -500,61 +500,147 @@ useEffect(() => {
 
   // ==================== GUARDAR PARTIDO (fechas o marcadores) ====================
   const handleSave = () => {
-  if (!selectedNode) return;
-  const parentId = graph.childToParent[selectedNode];
-  if (!parentId) {
-    handleCloseModal();
-    return;
-  }
-  const siblings = graph.parentToChildren[parentId];
-  const rivalId = siblings.find(id => id !== selectedNode);
-
-  if (estado === "En curso") {
-    // ... (tu código actual de En curso queda igual)
-    const s1 = parseInt(score1Input) || 0;
-    const s2 = parseInt(score2Input) || 0;
-
-    setMatches(prev => ({
-      ...prev,
-      [parentId]: {
-        team1: team1Input,
-        team2: team2Input,
-        score1: score1Input,
-        score2: score2Input,
-        date: dateInput
-      }
-    }));
-
-    let winnerData = null;
-    if (s1 > s2) winnerData = teamData[selectedNode];
-    else if (s2 > s1) winnerData = teamData[rivalId];
-
-    if (winnerData) {
-      setTeamData(prev => ({ ...prev, [parentId]: winnerData }));
+    if (!selectedNode) return;
+    const parentId = graph.childToParent[selectedNode];
+    if (!parentId) {
+      handleCloseModal();
+      return;
     }
-  } else {
-    // NUEVO / GUARDADO → ahora garantizamos que TODAS las claves existan
-    setMatchDates(prev => {
-      const updated = { ...prev };
+    const siblings = graph.parentToChildren[parentId];
+    const rivalId = siblings.find(id => id !== selectedNode);
 
-      // Si es la primera vez o faltan claves → llenamos todo con ""
-      if (Object.keys(updated).length === 0 || Object.keys(updated).length < nodes.length) {
-        nodes.forEach(node => {
-          if (!(node.id in updated)) {
-            updated[node.id] = "";
-          }
+    if (estado === "En curso") {
+      // Validaciones para modo "En curso"
+      
+      // 1. Validar que todos los campos estén llenos
+      if (!team1Input.trim() || !team2Input.trim() || score1Input === '' || score2Input === '' || !dateInput) {
+        MySwal.fire({
+          icon: 'warning',
+          title: 'Campos incompletos',
+          text: 'Por favor, completa todos los campos.',
+          confirmButtonColor: '#4A3287'
         });
+        return;
       }
 
-      // Asignamos la fecha elegida a los dos hijos (hojas del partido)
-      updated[selectedNode] = dateInput;
-      updated[rivalId] = dateInput;
+      // 2. Validar que las puntuaciones no sean negativas
+      const s1 = parseInt(score1Input);
+      const s2 = parseInt(score2Input);
+      
+      if (isNaN(s1) || isNaN(s2) || s1 < 0 || s2 < 0) {
+        MySwal.fire({
+          icon: 'error',
+          title: 'Puntuaciones inválidas',
+          text: 'Las puntuaciones deben ser números enteros no negativos.',
+          confirmButtonColor: '#4A3287'
+        });
+        return;
+      }
 
-      return updated;
-    });
-  }
-  handleCloseModal();
-};
+      // 3. Confirmación antes de guardar
+      MySwal.fire({
+        title: '¿Confirmar resultado?',
+        text: `${team1Input} ${s1} - ${s2} ${team2Input}`,
+        icon: 'question',
+        showCancelButton: true,
+        cancelButtonText: 'Cancelar',
+        confirmButtonText: 'Guardar',
+        confirmButtonColor: '#4A3287',
+        cancelButtonColor: '#dc3545',
+        reverseButtons: true
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // Guardar datos
+          setMatches(prev => ({
+            ...prev,
+            [parentId]: {
+              team1: team1Input,
+              team2: team2Input,
+              score1: score1Input,
+              score2: score2Input,
+              date: dateInput
+            }
+          }));
+
+          let winnerData = null;
+          if (s1 > s2) winnerData = teamData[selectedNode];
+          else if (s2 > s1) winnerData = teamData[rivalId];
+
+          if (winnerData) {
+            setTeamData(prev => ({ ...prev, [parentId]: winnerData }));
+          }
+
+          // 4. Mensaje de éxito
+          MySwal.fire({
+            icon: 'success',
+            title: '¡Resultado guardado!',
+            text: 'El enfrentamiento se ha configurado correctamente.',
+            confirmButtonColor: '#4A3287'
+          });
+
+          handleCloseModal();
+        }
+      });
+    } else {
+      // Validaciones para modo "Nuevo" o "Guardado"
+      
+      // 1. Validar que se haya seleccionado una fecha
+      if (!dateInput) {
+        MySwal.fire({
+          icon: 'warning',
+          title: 'Fecha requerida',
+          text: 'Por favor, selecciona una fecha para el enfrentamiento.',
+          confirmButtonColor: '#4A3287'
+        });
+        return;
+      }
+
+      // 2. Confirmación antes de guardar
+      MySwal.fire({
+        title: '¿Confirmar fecha?',
+        text: `Se programará el enfrentamiento para el ${new Date(dateInput).toLocaleDateString()}`,
+        icon: 'question',
+        showCancelButton: true,
+        cancelButtonText: 'Cancelar',
+        confirmButtonText: 'Guardar',
+        confirmButtonColor: '#4A3287',
+        cancelButtonColor: '#dc3545',
+        reverseButtons: true
+      }).then((result) => {
+        if (result.isConfirmed) {
+          // NUEVO / GUARDADO → ahora garantizamos que TODAS las claves existan
+          setMatchDates(prev => {
+            const updated = { ...prev };
+
+            // Si es la primera vez o faltan claves → llenamos todo con ""
+            if (Object.keys(updated).length === 0 || Object.keys(updated).length < nodes.length) {
+              nodes.forEach(node => {
+                if (!(node.id in updated)) {
+                  updated[node.id] = "";
+                }
+              });
+            }
+
+            // Asignamos la fecha elegida a los dos hijos (hojas del partido)
+            updated[selectedNode] = dateInput;
+            updated[rivalId] = dateInput;
+
+            return updated;
+          });
+
+          // 3. Mensaje de éxito
+          MySwal.fire({
+            icon: 'success',
+            title: '¡Fecha programada!',
+            text: 'La fecha del enfrentamiento se ha guardado correctamente.',
+            confirmButtonColor: '#4A3287'
+          });
+
+          handleCloseModal();
+        }
+      });
+    }
+  };
 
   // ==================== BOTONES PRINCIPALES ====================
   const handleGuardar = async () => {
@@ -687,10 +773,11 @@ useEffect(() => {
       text: 'Los cambios no guardados se perderán',
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonText: 'Sí, salir',
+      confirmButtonText: 'Salir',
       cancelButtonText: 'Cancelar',
       confirmButtonColor: '#4A3287',
       cancelButtonColor: '#dc3545',
+      reverseButtons: true
     }).then(result => {
       if (result.isConfirmed) volver();
     });
@@ -804,9 +891,10 @@ const handleNumTeamsChange = (newValue) => {
       text: 'El bracket cambiará completamente y se eliminarán todas las fechas que ya configuraste.',
       icon: 'warning',
       showCancelButton: true,
-      confirmButtonText: 'Sí, cambiar',
+      confirmButtonText: 'Cambiar',
       cancelButtonText: 'Cancelar',
       confirmButtonColor: '#d33',
+      reverseButtons: true
     }).then((result) => {
       if (result.isConfirmed) {
         setNumTeams(newValue);

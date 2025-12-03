@@ -23,6 +23,12 @@ export default function PerfilUsuario() {
     email: '',
     username: '',
   });
+  const [personalValidation, setPersonalValidation] = useState({
+    emailValid: true,
+    emailMessage: '',
+    usernameValid: true,
+    usernameMessage: ''
+  });
 
   // Estados para edición de contraseña
   const [editingPassword, setEditingPassword] = useState(false);
@@ -104,6 +110,54 @@ export default function PerfilUsuario() {
       hasValue: confirmPassword !== ''
     };
     setConfirmPasswordValidation(validation);
+  };
+
+  // Validación de datos personales
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    let isValid = true;
+    let message = '';
+
+    if (!email.trim()) {
+      isValid = false;
+      message = 'El correo es obligatorio';
+    } else if (!emailRegex.test(email)) {
+      isValid = false;
+      message = 'Formato de correo inválido';
+    } else {
+      message = 'Correo válido';
+    }
+
+    setPersonalValidation(prev => ({
+      ...prev,
+      emailValid: isValid,
+      emailMessage: message
+    }));
+
+    return isValid;
+  };
+
+  const validateUsername = (username) => {
+    let isValid = true;
+    let message = '';
+
+    if (!username.trim()) {
+      isValid = false;
+      message = 'El nombre de usuario es obligatorio';
+    } else if (username.length < 3) {
+      isValid = false;
+      message = 'Mínimo 3 caracteres';
+    } else {
+      message = 'Nombre de usuario válido';
+    }
+
+    setPersonalValidation(prev => ({
+      ...prev,
+      usernameValid: isValid,
+      usernameMessage: message
+    }));
+
+    return isValid;
   };
 
   const handlePasswordChange = (field, value) => {
@@ -203,6 +257,20 @@ export default function PerfilUsuario() {
 
   // Guardar datos personales
   const handleSavePersonal = async () => {
+    // Validar todos los campos
+    const emailValid = validateEmail(personalData.email);
+    const usernameValid = validateUsername(personalData.username);
+
+    // Si algún campo no es válido, mostrar error
+    if (!emailValid || !usernameValid) {
+      return MySwal.fire({
+        icon: 'error',
+        title: 'Datos inválidos',
+        text: 'Por favor, corrige los errores en el formulario antes de continuar.',
+        confirmButtonColor: '#4A3287'
+      });
+    }
+
     const result = await MySwal.fire({
       title: '¿Confirmar cambios?',
       text: 'Los datos personales serán actualizados.',
@@ -467,17 +535,35 @@ export default function PerfilUsuario() {
               <Form.Control
                 type="email"
                 value={personalData.email}
-                onChange={(e) => setPersonalData({ ...personalData, email: e.target.value })}
+                onChange={(e) => {
+                  const newEmail = e.target.value;
+                  setPersonalData({ ...personalData, email: newEmail });
+                  validateEmail(newEmail);
+                }}
                 placeholder="ejemplo@correo.com"
+                isInvalid={!personalValidation.emailValid}
+                isValid={personalValidation.emailValid && personalData.email.trim() !== ''}
               />
+              <Form.Control.Feedback type={personalValidation.emailValid ? 'valid' : 'invalid'}>
+                {personalValidation.emailMessage}
+              </Form.Control.Feedback>
             </Form.Group>
             <Form.Group className="mb-3">
               <Form.Label>Nombre de usuario:</Form.Label>
               <Form.Control
                 value={personalData.username}
-                onChange={(e) => setPersonalData({ ...personalData, username: e.target.value })}
+                onChange={(e) => {
+                  const newUsername = e.target.value;
+                  setPersonalData({ ...personalData, username: newUsername });
+                  validateUsername(newUsername);
+                }}
                 placeholder="Tu nombre de usuario"
+                isInvalid={!personalValidation.usernameValid}
+                isValid={personalValidation.usernameValid && personalData.username.trim() !== ''}
               />
+              <Form.Control.Feedback type={personalValidation.usernameValid ? 'valid' : 'invalid'}>
+                {personalValidation.usernameMessage}
+              </Form.Control.Feedback>
             </Form.Group>
           </Form>
         </Modal.Body>

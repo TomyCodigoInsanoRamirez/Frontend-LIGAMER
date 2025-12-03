@@ -52,13 +52,14 @@
 
 
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { requestToTeams, manageJoinRequest } from '../utils/Service/usuario';
 import Swal from 'sweetalert2';
 
 export default function Sidebar({ menuItems = [] }) {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const [notificaciones, setNotificaciones] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -143,6 +144,21 @@ export default function Sidebar({ menuItems = [] }) {
     }
   };
 
+  const handleLogout = () => {
+    Swal.fire({
+      icon: 'info',
+      title: 'Tu sesión ha finalizado',
+      text: 'Por favor vuelve a iniciar sesión',
+      confirmButtonText: 'Aceptar',
+      confirmButtonColor: '#4A3287',
+      allowOutsideClick: false,
+      allowEscapeKey: false
+    }).then(() => {
+      logout();
+      navigate('/login');
+    });
+  };
+
   const unreadCount = notificaciones.length;
 
   return (
@@ -202,7 +218,7 @@ export default function Sidebar({ menuItems = [] }) {
                 </button>
               </div>
 
-              <button className="btn btn-outline-light btn-sm" onClick={logout}>
+              <button className="btn btn-outline-light btn-sm" onClick={handleLogout}>
                 Cerrar sesión
               </button>
             </div>

@@ -134,9 +134,12 @@ export default function TablaCard({ encabezados = [], datos = [], acciones = [],
     if (e) e.stopPropagation();
     const accion = accionObj?.accion || "Acción";
 
+    // Obtener el nombre/título del elemento de forma más robusta
+    const nombreElemento = fila.nombre || fila.name || fila.tournamentName || 'elemento';
+    
     let alertConfig = {
-      title: `¿${accion} "${fila.nombre || ''}"?`,
-      text: `Organizador: ${fila.organizador || '-'}\nEquipos: ${fila.equipos ?? '-'}`,
+      title: `${accion} torneo`,
+      text: `Ingresar para ver los datos del torneo: ${nombreElemento}`,
       icon: 'question',
       showCancelButton: true,
       confirmButtonText: 'Confirmar',
@@ -147,12 +150,14 @@ export default function TablaCard({ encabezados = [], datos = [], acciones = [],
     };
 
     if (accion === "Unirse") {
-      alertConfig.title = `¿Deseas unirte al equipo "${fila.name || ''}"?`;
-      alertConfig.text = `Al confirmar, se enviará una solicitud para unirte a este equipo. El lider revisará tu solicitud y te notificará la respuesta.`;
+      const nombreEquipo = fila.name || fila.nombre || 'este equipo';
+      alertConfig.title = `¿Deseas unirte al equipo "${nombreEquipo}"?`;
+      alertConfig.text = `Al confirmar, se enviará una solicitud para unirte a este equipo. El líder revisará tu solicitud y te notificará la respuesta.`;
     }
 
     if (accion === "Asignar") {
-      alertConfig.title = `¿Asignar como organizador a "${fila.tournamentName || ''}"?`;
+      const nombreTorneo = fila.tournamentName || fila.nombre || 'este torneo';
+      alertConfig.title = `¿Asignar como organizador?`;
       alertConfig.text = `Al confirmar, se asignará a esta persona como organizador.`;
     }
 
