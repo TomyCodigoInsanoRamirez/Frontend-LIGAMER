@@ -618,39 +618,31 @@ useEffect(() => {
     };
 
     try {
-    const response = await updateTournament(id,torneoData); // ← async/await
+      const response = await updateTournament(id,torneoData); // ← async/await
 
-    console.clear();
-    console.log("SE ACTUALIZOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO", "color: #4A3287; font-size: 20px; font-weight: bold;");
-    console.log("Respuesta del servidor:", response);
-    console.log("Esto se mando a actualizr:", torneoData);
-
-    MySwal.fire({
-      icon: 'success',
-      title: '¡Borrador guardado con éxito!',
-      toast: true,
-      position: 'top-end',
-      timer: 3000,
-      showConfirmButton: false
-    });
-    if(estado!=="En curso"){
-    volver();
+      MySwal.fire({
+        icon: 'success',
+        title: '¡Borrador guardado con éxito!',
+        toast: true,
+        position: 'top-end',
+        timer: 3000,
+        showConfirmButton: false
+      });
+      if(estado!=="En curso"){
+        volver();
+      }
+    } catch (error) {
+      MySwal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.response?.data?.message || 'No se pudo guardar el borrador',
+        toast: true,
+        position: 'top-end',
+      });
+    }
   }
 
-  } catch (error) {
-    console.error("Error al guardar el torneo:", error);
-
-    MySwal.fire({
-      icon: 'error',
-      title: 'Error',
-      text: error.response?.data?.message || 'No se pudo guardar el borrador',
-      toast: true,
-      position: 'top-end',
-    });
-  }
-  }
-
-  const handleCrearTorneo = () => {
+  const handleCrearTorneo = async () => { //= async () => {
     const torneoData = {
       tournamentName,
       description,
@@ -660,26 +652,33 @@ useEffect(() => {
       registrationCloseDate,
       ruleList: [...ruleList],
       matchDates: { ...matchDates },
-      teams: [],
-      matches: {},
       estado: "En curso",
       generadoEl: new Date().toISOString(),
     };
 
-    console.clear();
-    console.log("%cTORNEO PUBLICADO - EN CURSO", "color: #28a745; font-size: 20px; font-weight: bold;");
-    console.log(torneoData);
+    try {
+      const response = await updateTournament(id,torneoData); // ← async/await
 
-    MySwal.fire({
-      icon: 'success',
-      title: '¡Torneo creado y publicado!',
-      text: 'Ya está en curso',
-      toast: true,
-      position: 'top-end',
-      timer: 3000
-    });
-
-    // Aquí harás el POST al backend
+      MySwal.fire({
+        icon: 'success',
+        title: '¡Torneo creado y publicado!',
+        text: 'Ya está en curso',
+        toast: true,
+        position: 'top-end',
+        timer: 3000
+      });
+      if(estado!=="En curso"){
+        volver();
+      }
+    } catch (error) {
+      MySwal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.response?.data?.message || 'No se pudo guardar el borrador',
+        toast: true,
+        position: 'top-end',
+      });
+    }
   };
 
   const handleCancel = () => {
@@ -893,7 +892,7 @@ const handleNumTeamsChange = (newValue) => {
         )}
         {estado == 'Nuevo' && (
           <Button className='btnn guardar' onClick={handleGuardar}>
-            Guardar como borrador Nuevo
+            Guardar como borrador 
           </Button>
         )}
       </div>
