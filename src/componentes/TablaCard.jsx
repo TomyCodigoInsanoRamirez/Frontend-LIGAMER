@@ -89,7 +89,7 @@ export default function TablaCard({ encabezados = [], datos = [], acciones = [],
         MySwal.fire({
           icon: 'warning',
           title: 'Ya perteneces a un equipo',
-          text: 'No puedes unirte a otro equipo mientras ya formes parte de uno. Si deseas cambiar de equipo, primero debes salir del actual.',
+          text: 'Abandona tu equipo actual para unirte a otro',
           confirmButtonColor: '#4A3287'
         });
         return false;
@@ -222,7 +222,7 @@ export default function TablaCard({ encabezados = [], datos = [], acciones = [],
             .catch((err) => { 
               console.error("Error unirse al equipo:", err);
               // Mostrar mensaje de error si la petición falla
-              const errorMessage = 'Ya enviaste la solicitud a este equipo, espera respuesta del administrador.';
+              const errorMessage = 'Ya has solicitado unirte a este equipo, espera respuesta del administrador';
               MySwal.fire({
                 icon: 'warning',
                 title: 'Solicitud duplicada',

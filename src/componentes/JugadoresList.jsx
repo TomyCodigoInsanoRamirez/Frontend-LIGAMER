@@ -30,7 +30,7 @@ export default function JugadoresList() {
       showCancelButton: true,
       confirmButtonColor: '#d33',
       cancelButtonColor: '#4A3287',
-      confirmButtonText: 'Sí, salir del equipo',
+      confirmButtonText: 'Salir del equipo',
       cancelButtonText: 'Cancelar'
     });
 
