@@ -3,6 +3,8 @@ import { PieChart } from '@mui/x-charts/PieChart';
 import {getPieChartData} from './../utils/Service/usuario';
 import { useState, useEffect } from 'react';
 import { useMemo } from 'react';
+import {searchUserByEmail} from "./../utils/Service/General";
+
 
 export default function PieChartGamers() {
   // Datos: Distribución de victorias por equipo en un torneo
@@ -14,15 +16,48 @@ export default function PieChartGamers() {
   ];
 
   const [chartData, setChartData] = useState([]);
+  const [id, setId] = useState(null);
+
+
+  const getCorreoFromToken = () => {
+        const token = localStorage.getItem("token");
+        if (!token) return null;
+    
+        try {
+          const payloadBase64 = token.split(".")[1];
+          const payloadJson = atob(payloadBase64);
+          const payload = JSON.parse(payloadJson);
+          return payload.sub || null;
+        } catch (error) {
+          console.error("Token inválido:", error);
+          return null;
+        }
+      };
+    
+      // Cargar información del usuario al montar el componente
+      useEffect(() => {
+        const email = getCorreoFromToken();
+        if (email) {
+          searchUserByEmail(email)
+            .then((data) => {
+              setId(data.id);       
+              console.log("ID usuario en LineChartGamers:", data.id); 
+            })
+            .catch((err) => console.error("Error al cargar usuario:", err));
+        }
+      }, []);
+
 
   useEffect(() => { 
-    getPieChartData(5)
+    getPieChartData(id)
       .then((data) => {
         setChartData(data.data); 
         //console.log("Data chart: "+JSON.stringify(data.data));
       })
       .catch((err) => console.log(err));
   }, []);
+
+  
 
   useEffect(() => {
     console.log("Estado chartData actualizado:", chartData);

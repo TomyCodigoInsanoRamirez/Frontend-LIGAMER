@@ -2,6 +2,8 @@ import React from 'react';
 import { RadarChart } from '@mui/x-charts/RadarChart';
 import { useState, useEffect } from 'react';
 import {getRadarChartData} from './../utils/Service/usuario';
+import {searchUserByEmail} from "./../utils/Service/General";
+
 
 export default function RadarChartGamers() {
   // const dataset = [
@@ -16,8 +18,39 @@ export default function RadarChartGamers() {
   const [nombres, setNombres] = useState([]);
   const [maxValue, setMaxValue] = useState(0);
 
+  const [id, setId] = useState(null);
+  
+     // Obtener correo del token
+      const getCorreoFromToken = () => {
+        const token = localStorage.getItem("token");
+        if (!token) return null;
+    
+        try {
+          const payloadBase64 = token.split(".")[1];
+          const payloadJson = atob(payloadBase64);
+          const payload = JSON.parse(payloadJson);
+          return payload.sub || null;
+        } catch (error) {
+          console.error("Token inválido:", error);
+          return null;
+        }
+      };
+    
+      // Cargar información del usuario al montar el componente
+      useEffect(() => {
+        const email = getCorreoFromToken();
+        if (email) {
+          searchUserByEmail(email)
+            .then((data) => {
+              setId(data.teamId);       
+              console.log("ID usuario en LineChartGamers:", data.teamId); 
+            })
+            .catch((err) => console.error("Error al cargar usuario:", err));
+        }
+      }, []);
+
 useEffect(() => {   
-  getRadarChartData(1)
+  getRadarChartData(id)
     .then((data) => {
       setChartData(data.data.players);
       console.log("Data radar chart:", data.data.players);

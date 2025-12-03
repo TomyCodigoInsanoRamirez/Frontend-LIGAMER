@@ -82,6 +82,9 @@ export async function getTeamMembers(teamId) {
 // Endpoint: /api/stats/pie
 // -----------------------------------------
 export async function getPieChartData(teamId) {
+    if(!teamId || teamId === null){
+        teamId = 0;
+    }
     console.log("TeamID en Service: "+teamId);
     try {
         const response = await api.post(`/api/stats/pie`, {
@@ -98,6 +101,9 @@ export async function getPieChartData(teamId) {
 // Endpoint: /api/stats/radar?teamId=&tournamentId=
 // -----------------------------------------
 export async function getRadarChartData(teamId) {
+    if(!teamId || teamId === null){
+        teamId = 0;
+    }
     try {
         const response = await api.post(`/api/stats/radar`, {
              "teamId": teamId 
@@ -114,6 +120,9 @@ export async function getRadarChartData(teamId) {
 // Endopoint: /api/stats/series
 //--------------------------------------------
 export async function getLineChartData(teamId){
+    if(!teamId || teamId === null){
+        teamId = 0;
+    }
   try {
     const response = await api.post("/api/stats/series", {
        "teamId": teamId 

@@ -12,6 +12,8 @@ import {
 
 import { useState, useEffect } from 'react';
 import {getLineChartData} from './../utils/Service/usuario';
+import {searchUserByEmail} from "./../utils/Service/General";
+
 
 // Datos de ejemplo: puedes reemplazar por tus datos reales
 const data = [
@@ -23,13 +25,42 @@ const data = [
 ];
 
 
-
 export default function TorneosLineChart() {
+    const [id, setId] = useState(null);
+
+   // Obtener correo del token
+    const getCorreoFromToken = () => {
+      const token = localStorage.getItem("token");
+      if (!token) return null;
+  
+      try {
+        const payloadBase64 = token.split(".")[1];
+        const payloadJson = atob(payloadBase64);
+        const payload = JSON.parse(payloadJson);
+        return payload.sub || null;
+      } catch (error) {
+        console.error("Token inválido:", error);
+        return null;
+      }
+    };
+  
+    // Cargar información del usuario al montar el componente
+    useEffect(() => {
+      const email = getCorreoFromToken();
+      if (email) {
+        searchUserByEmail(email)
+          .then((data) => {
+            setId(data.teamId);       
+            console.log("ID usuario en LineChartGamers:", data.teamId); 
+          })
+          .catch((err) => console.error("Error al cargar usuario:", err));
+      }
+    }, []);
 
   const [chartData, setChartData] = useState([]);
 
 useEffect(() => {
-  getLineChartData(5)
+  getLineChartData(id)
     .then((data) => {
       setChartData(data.data);    
       console.log("Data line chart:", data.data);
