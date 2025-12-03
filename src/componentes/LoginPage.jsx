@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import "bootstrap-icons/font/bootstrap-icons.css"; 
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
+import { activeUser, getUserByEmail } from '../utils/Service/General';
 
 const MySwal = withReactContent(Swal);
 
@@ -12,6 +13,14 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState(null);
+  const [failedAttempts, setFailedAttempts] = useState(() => {
+    const stored = localStorage.getItem(`failedAttempts_${username}`);
+    return stored ? parseInt(stored) : 0;
+  });
+  const [isUserDisabled, setIsUserDisabled] = useState(() => {
+    const stored = localStorage.getItem(`userDisabled_${username}`);
+    return stored === 'true';
+  });
   const navigate = useNavigate();
   const location = useLocation();
   const from = location.state?.from?.pathname || null;
@@ -34,14 +43,46 @@ export default function LoginPage() {
     const targetRoute = roleMap[user.role] || '/';
     navigate(targetRoute, { replace: true });
   }, [loading, user]);
+
+  // Efecto para cargar los intentos fallidos cuando cambia el username
+  useEffect(() => {
+    if (username) {
+      const storedAttempts = localStorage.getItem(`failedAttempts_${username}`);
+      const storedDisabled = localStorage.getItem(`userDisabled_${username}`);
+      
+      setFailedAttempts(storedAttempts ? parseInt(storedAttempts) : 0);
+      setIsUserDisabled(storedDisabled === 'true');
+    } else {
+      setFailedAttempts(0);
+      setIsUserDisabled(false);
+    }
+  }, [username]);
   
   if (loading) return null; // o un spinner
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
+
+    // Verificar si el usuario está deshabilitado
+    if (isUserDisabled) {
+      MySwal.fire({
+        icon: "error",
+        title: "Usuario deshabilitado",
+        text: "Tu cuenta ha sido deshabilitada por múltiples intentos fallidos. Contacta al administrador.",
+        confirmButtonText: "Aceptar"
+      });
+      return;
+    }
+
     try {
       const u = await login(username, password);
+      // Resetear intentos fallidos si el login es exitoso
+      setFailedAttempts(0);
+      setIsUserDisabled(false);
+      localStorage.removeItem(`failedAttempts_${username}`);
+      localStorage.removeItem(`userDisabled_${username}`);
+      
       // Si veníamos de una ruta protegida, volver ahí, si no, navegar según rol
       if (from) {
         navigate(from, { replace: true });
@@ -51,13 +92,62 @@ export default function LoginPage() {
       else if (u.role === 'ROLE_ORGANIZADOR' || u.role === 'manager') navigate('/manager');
       else navigate('/user');
     } catch (err) {
-      // Mostrar alerta genérica sin indicar qué dato falló
-      MySwal.fire({
-        icon: "error",
-        title: "Credenciales incorrectas",
-        text: "Las credenciales que ingresaste no son válidas. Intenta de nuevo.",
-        confirmButtonText: "Aceptar"
-      });
+      // Incrementar contador de intentos fallidos
+      const newFailedAttempts = failedAttempts + 1;
+      setFailedAttempts(newFailedAttempts);
+      localStorage.setItem(`failedAttempts_${username}`, newFailedAttempts.toString());
+
+      if (newFailedAttempts >= 3) {
+        // Deshabilitar usuario después de 3 intentos
+        try {
+          // Obtener información del usuario por email para conseguir su ID
+          const userInfo = await getUserByEmail(username);
+          
+          if (userInfo && userInfo.data && userInfo.data.id) {
+            // Llamar al endpoint activeUser para deshabilitar (cambiar estado a false)
+            await activeUser(userInfo.data.id);
+            setIsUserDisabled(true);
+            localStorage.setItem(`userDisabled_${username}`, 'true');
+            
+            MySwal.fire({
+              icon: "error",
+              title: "Usuario deshabilitado",
+              text: "Has excedido el número máximo de intentos permitidos (3). Tu cuenta ha sido deshabilitada. Contacta al administrador.",
+              confirmButtonText: "Aceptar"
+            });
+          } else {
+            // Si no podemos obtener el usuario, solo mostramos el mensaje local
+            setIsUserDisabled(true);
+            localStorage.setItem(`userDisabled_${username}`, 'true');
+            MySwal.fire({
+              icon: "error",
+              title: "Usuario deshabilitado",
+              text: "Has excedido el número máximo de intentos permitidos (3). Tu cuenta ha sido deshabilitada temporalmente.",
+              confirmButtonText: "Aceptar"
+            });
+          }
+        } catch (disableError) {
+          console.error("Error al deshabilitar usuario:", disableError);
+          // Incluso si falla la deshabilitación en el servidor, deshabilitar localmente
+          setIsUserDisabled(true);
+          localStorage.setItem(`userDisabled_${username}`, 'true');
+          MySwal.fire({
+            icon: "error",
+            title: "Usuario deshabilitado",
+            text: "Has excedido el número máximo de intentos permitidos (3). Tu cuenta ha sido deshabilitada temporalmente.",
+            confirmButtonText: "Aceptar"
+          });
+        }
+      } else {
+        const remainingAttempts = 3 - newFailedAttempts;
+        MySwal.fire({
+          icon: "warning",
+          title: "Credenciales incorrectas",
+          text: `Las credenciales que ingresaste no son válidas. Te quedan ${remainingAttempts} intento(s).`,
+          confirmButtonText: "Aceptar"
+        });
+      }
+      
       // Mantener texto de error opcionalmente para la UI
       setError(err?.message || "Credenciales incorrectas");
     }
@@ -115,9 +205,28 @@ export default function LoginPage() {
 
                   {error && <div className="text-danger mb-2">{error}</div>}
 
+                  {isUserDisabled && (
+                    <div className="alert alert-danger mb-3" role="alert">
+                      <i className="bi bi-exclamation-triangle-fill me-2"></i>
+                      Usuario deshabilitado por múltiples intentos fallidos.
+                    </div>
+                  )}
+
+                  {failedAttempts > 0 && failedAttempts < 3 && !isUserDisabled && (
+                    <div className="alert alert-warning mb-3" role="alert">
+                      <i className="bi bi-exclamation-triangle me-2"></i>
+                      Intentos fallidos: {failedAttempts}/3. Te quedan {3 - failedAttempts} intento(s).
+                    </div>
+                  )}
+
                   <div className="d-grid gap-2 mb-3">
-                    <button type="submit" className="btn" style={{ backgroundColor: '#4A3287', color: 'white' }}>
-                      Iniciar sesión
+                    <button 
+                      type="submit" 
+                      className="btn" 
+                      style={{ backgroundColor: '#4A3287', color: 'white' }}
+                      disabled={isUserDisabled}
+                    >
+                      {isUserDisabled ? 'Usuario deshabilitado' : 'Iniciar sesión'}
                     </button>
                   </div>
 

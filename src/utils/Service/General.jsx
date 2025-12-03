@@ -127,3 +127,27 @@ export async function searchUserByEmail(email){
     throw error;
   } 
 }
+//------------------------------------------
+// Endpoint: /api/admin/users/:userId
+// -----------------------------------------
+export async function activeUser(userId){
+    try {
+        const response = await api.put(`/api/admin/users/${userId}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error activando el usuario:", error);
+        throw error;
+  }
+}
+//------------------------------------------
+// Endpoint: /api/admin/users/search?email= (para obtener usuario por email)
+// -----------------------------------------
+export async function getUserByEmail(email){
+    try {
+        const response = await api.get(`/api/admin/users/search?email=${email}`);
+        return response.data;
+    } catch (error) {
+        console.error("Error obteniendo usuario por email:", error);
+        throw error;
+    }
+}
